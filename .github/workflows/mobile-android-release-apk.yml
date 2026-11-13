@@ -1,0 +1,166 @@
+name: Mobile Android release APK
+
+# Builds an installable Kilo Android APK whose JavaScript is bundled into the
+# artifact, so the app UI opens on its own instead of the Expo dev-client
+# launcher that `mobile-native-build.yml` produces (that job runs
+# `app:assembleDebug` for a `debug-dev-client` build, which needs a Metro server
+# before it shows any app screen).
+#
+# The Play release pipeline (kilo-app-release.yml) only runs for the upstream
+# repository, so a fork has no way to get a standalone APK. This workflow is
+# that way: run it from the Actions tab and download the `kilo-android-release`
+# artifact.
+#
+# Signing: release builds in the generated project sign with the debug
+# keystore, and the injected `android.injected.signing.*` properties pin that
+# keystore explicitly so a template change cannot silently leave the APK
+# unsigned. The debug identity is fine for sideloading and useless for the Play
+# Store. Android refuses to install it over a Play-signed build of the same
+# applicationId, so uninstall the store version first.
+#
+# A non-production build only warns about missing environment values
+# (apps/mobile/app.config.ts), and apps/mobile/.env is tracked, so the artifact
+# carries the same public configuration the debug build does.
+
+on:
+  workflow_dispatch:
+  # The workflow has to exist on the default branch before it can be dispatched,
+  # so publishing it builds the first artifact without a second click. Code
+  # changes do not rebuild it: dispatch the workflow when you want a fresh APK.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mobile-android-release-apk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          lfs: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Setup Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # The release bundle inlines EXPO_PUBLIC_ values and resolves
+      # @kilocode/harness-sdk, so the install is the whole workspace rather than
+      # the filtered one the native build's probe steps use.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore or build the harness SDK
+        uses: ./.github/actions/harness-sdk-build
+
+      # The app imports @kilocode/trpc only through type-only specifiers, so the
+      # declarations are not needed to bundle; they are cheap on a cache hit and
+      # keep a stray value import from turning into an unresolvable module.
+      - name: Restore or build tRPC declarations
+        uses: ./.github/actions/trpc-declarations
+
+      - name: Expo prebuild
+        run: CI=1 pnpm --filter kilo-app exec expo prebuild --platform android
+
+      - name: Cache the Gradle user home
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ runner.arch }}-gradle-release-${{ hashFiles('apps/mobile/package.json', 'pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-gradle-
+
+      # A release APK compiles the Hermes bundle and runs the resource tasks, so
+      # it is the slow job in this workflow, not the install above.
+      - name: Build the release APK
+        env:
+          # No Sentry credentials here: skip the native symbol upload instead of
+          # failing the build on an unauthenticated upload.
+          SENTRY_DISABLE_AUTO_UPLOAD: 'true'
+        run: |
+          set -euo pipefail
+          cd apps/mobile/android
+
+          # apksigner lives in the SDK's build-tools and is not on PATH, so
+          # resolve the newest installed one and fail early when the runner
+          # image ships none.
+          sdk_root=${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}
+          apksigner=$(ls -d "$sdk_root"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -n 1 || true)
+          if [ -z "$apksigner" ]; then
+            echo "::error::no apksigner under ${sdk_root:-an unset ANDROID_SDK_ROOT}/build-tools"
+            exit 1
+          fi
+
+          # Prebuild ships the template's debug keystore; recreate the same
+          # identity if a template change ever drops it, so the signing
+          # properties below always name a file that exists.
+          if [ ! -f app/debug.keystore ]; then
+            keytool -genkeypair \
+              -keystore app/debug.keystore \
+              -storepass android -keypass android \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname 'CN=Android Debug,O=Android,C=US'
+          fi
+
+          ./gradlew --no-daemon app:assembleRelease \
+            -Pandroid.injected.signing.store.file="$PWD/app/debug.keystore" \
+            -Pandroid.injected.signing.store.password=android \
+            -Pandroid.injected.signing.key.alias=androiddebugkey \
+            -Pandroid.injected.signing.key.password=android
+
+          out=app/build/outputs/apk/release
+          apk="$out/app-release.apk"
+          if [ ! -f "$apk" ]; then
+            # Injection is the documented path, but an unsigned APK is still a
+            # usable build once it is signed here. Fail loudly when neither
+            # file exists: that is a real build failure, not a signing quirk.
+            unsigned="$out/app-release-unsigned.apk"
+            if [ ! -f "$unsigned" ]; then
+              echo "::error::assembleRelease wrote no APK in $out"
+              ls -l "$out" || true
+              exit 1
+            fi
+            echo "Injected signing was not applied; signing $unsigned directly"
+            cp "$unsigned" "$apk"
+            apksigner sign \
+              --ks app/debug.keystore \
+              --ks-pass pass:android \
+              --key-pass pass:android \
+              --ks-key-alias androiddebugkey \
+              "$apk"
+          fi
+
+          # An APK Android will not install is not an artifact worth uploading.
+          apksigner verify --print-certs "$apk"
+          cp "$apk" "$RUNNER_TEMP/kilo-android-release.apk"
+          ls -lh "$RUNNER_TEMP/kilo-android-release.apk" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kilo-android-release
+          path: ${{ runner.temp }}/kilo-android-release.apk
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
