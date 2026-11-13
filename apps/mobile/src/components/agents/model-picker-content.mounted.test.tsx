@@ -139,10 +139,14 @@ vi.mock('@/components/ui/button', () => ({ Button: 'Button' }));
 vi.mock('@/components/ui/text', () => ({ Text: 'Text' }));
 vi.mock('@/components/ui/icons', () => ({
   AlertCircle: 'AlertCircle',
+  ChevronDown: 'ChevronDown',
   Info: 'Info',
   Search: 'Search',
   SearchX: 'SearchX',
   X: 'X',
+}));
+vi.mock('@/components/ui/directional-icons', () => ({
+  DirectionalChevronRight: 'DirectionalChevronRight',
 }));
 vi.mock('@/components/agents/model-selector', () => ({
   ModelPickerOptionRow: 'ModelPickerOptionRow',
@@ -499,7 +503,7 @@ describe('ModelPickerContent deferred search', () => {
     const renderer = await mount();
 
     const rows = listRows(renderer);
-    const header = rows.find(row => row.type === 'header');
+    const header = rows.find(row => row.type === 'provider-header');
     const model = rows.find(row => row.type === 'model');
     if (!header || !model) {
       throw new Error('expected both a header and a model row in the catalog');
@@ -507,7 +511,7 @@ describe('ModelPickerContent deferred search', () => {
 
     // The two rows differ in height, so recycling them under one item type
     // would measure one as the other. Pin the split.
-    expect(getItemType(renderer)(header)).toBe('header');
+    expect(getItemType(renderer)(header)).toBe('provider-header');
     expect(getItemType(renderer)(model)).toBe('model');
 
     act(() => {
@@ -730,6 +734,90 @@ describe('ModelPickerContent selected row', () => {
     /* eslint-enable typescript-eslint/no-unsafe-member-access */
 
     expect(selectedIds).toEqual(['remote-model-17']);
+
+    act(() => {
+      renderer.unmount();
+    });
+  });
+});
+
+// A provider section folds to its own header, so a catalogue with many vendors
+// is navigable without scrolling past every group's models. The header is the
+// control, and a search reopens every section it had folded: a query whose
+// match sits in a folded section must not answer "No matches".
+describe('ModelPickerContent provider sections', () => {
+  /* eslint-disable typescript-eslint/no-unsafe-member-access -- react-test-renderer props are an index signature */
+  function headerState(node: TestRenderer.ReactTestInstance): { expanded?: boolean } | undefined {
+    return node.props.accessibilityState as { expanded?: boolean } | undefined;
+  }
+
+  function groupHeader(renderer: TestRenderer.ReactTestRenderer): TestRenderer.ReactTestInstance {
+    const [header] = renderer.root.findAll(node => headerState(node)?.expanded !== undefined);
+    if (!header) {
+      throw new Error('provider header not found');
+    }
+    return header;
+  }
+
+  function pressGroupHeader(renderer: TestRenderer.ReactTestRenderer): void {
+    (groupHeader(renderer).props.onPress as (() => void) | undefined)?.();
+  }
+  /* eslint-enable typescript-eslint/no-unsafe-member-access */
+
+  beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    buildSearchCalls.values.length = 0;
+    listCommitLengths.values.length = 0;
+    slotState.bridge = makeBridge();
+    safeAreaInsets.bottom = 0;
+    routerBack.mockClear();
+  });
+
+  it('folds a provider section to its header and opens it again', async () => {
+    const renderer = await mount();
+    expect(listedDisplayIds(renderer)).toHaveLength(TOTAL_OPTIONS);
+    expect(headerState(groupHeader(renderer))).toEqual({ expanded: true });
+
+    await act(async () => {
+      pressGroupHeader(renderer);
+      await Promise.resolve();
+    });
+
+    expect(listedDisplayIds(renderer)).toEqual([]);
+    expect(listRows(renderer)).toEqual([
+      { key: 'provider:test', title: 'TEST', type: 'provider-header', expanded: false },
+    ]);
+    expect(headerState(groupHeader(renderer))).toEqual({ expanded: false });
+
+    await act(async () => {
+      pressGroupHeader(renderer);
+      await Promise.resolve();
+    });
+
+    expect(listedDisplayIds(renderer)).toHaveLength(TOTAL_OPTIONS);
+    expect(headerState(groupHeader(renderer))).toEqual({ expanded: true });
+
+    act(() => {
+      renderer.unmount();
+    });
+  });
+
+  it('reopens a folded section while a search runs', async () => {
+    const renderer = await mount();
+
+    await act(async () => {
+      pressGroupHeader(renderer);
+      await Promise.resolve();
+    });
+    expect(listedDisplayIds(renderer)).toEqual([]);
+
+    await act(async () => {
+      typeSearch(renderer, FINAL_QUERY);
+      await Promise.resolve();
+    });
+
+    expect(listedDisplayIds(renderer)).toHaveLength(FINAL_MATCH_COUNT);
+    expect(headerState(groupHeader(renderer))).toEqual({ expanded: true });
 
     act(() => {
       renderer.unmount();

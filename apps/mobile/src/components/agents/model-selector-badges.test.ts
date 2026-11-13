@@ -66,4 +66,23 @@ describe('modelSelectorBadges', () => {
     expect(badges.tools).toBe(true);
     expect(badges.images).toBe(false);
   });
+
+  it('shows images for options that state the capability without chat capabilities', () => {
+    // A Gateway catalogue model and a CLI catalogue model both carry their
+    // image capability outside `capabilities`, which the chat backends own.
+    expect(
+      modelSelectorBadges({
+        id: 'anthropic/claude-sonnet-4.6',
+        showGatewayMetadata: true,
+        supportsImages: true,
+      }).images
+    ).toBe(true);
+    expect(
+      modelSelectorBadges({
+        id: 'remote-model-0',
+        showGatewayMetadata: false,
+        supportsImages: false,
+      }).images
+    ).toBe(false);
+  });
 });

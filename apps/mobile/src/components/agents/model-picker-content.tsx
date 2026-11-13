@@ -7,6 +7,7 @@ import { Pressable, type TextInput, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
+import { ModelPickerSectionRow } from '@/components/agents/model-picker-section-header';
 import { ModelPickerOptionRow } from '@/components/agents/model-selector';
 import { EmptyState } from '@/components/empty-state';
 import { PickerSheet } from '@/components/picker-sheet';
@@ -14,14 +15,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
+import { useModelPickerRows } from '@/lib/hooks/use-model-picker-rows';
 import { useModelPreferences } from '@/lib/hooks/use-model-preferences';
 import { type SessionModelOption } from '@/lib/hooks/use-session-model-options';
 import { useThemeColors } from '@/lib/hooks/use-theme-colors';
-import {
-  buildModelPickerRows,
-  favoriteToggleAction,
-  type ModelPickerRow,
-} from '@/lib/model-picker-rows';
+import { favoriteToggleAction, type ModelPickerRow } from '@/lib/model-picker-rows';
 import { commitModelPickerSelection, resolveModelPickerSelection } from '@/lib/picker-bridge';
 import { dismissSearchPickerKeyboard, SEARCHABLE_PICKER_LIST_PROPS } from '@/lib/picker-list';
 import { parseParam } from '@/lib/route-params';
@@ -66,6 +64,13 @@ export function ModelPickerContent() {
   // rows leave the chips out and a model tap is the whole selection. Read from
   // the bridge rather than a prop: the slot is the picker route's only input.
   const acceptsVariant = bridge?.acceptsVariant ?? true;
+  // The rows and the provider sections folded shut. The sheet itself owns only
+  // the search field and the selection.
+  const { resetCollapsedProviders, rows, toggleProvider } = useModelPickerRows({
+    favoriteIds,
+    models: bridge?.options,
+    search: deferredSearch,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -81,6 +86,7 @@ export function ModelPickerContent() {
       setSelectedModel(nextModel);
       setSelectedVariant(nextVariant);
       setSearch('');
+      resetCollapsedProviders();
       searchInputRef.current?.clear();
 
       return () => {
@@ -100,13 +106,7 @@ export function ModelPickerContent() {
         modelPickerSlot.clear(routeKey);
         bridgeRef.current = undefined;
       };
-    }, [routeKey])
-  );
-
-  const rows = useMemo<ModelPickerRow[]>(
-    () =>
-      buildModelPickerRows({ models: bridge?.options ?? [], search: deferredSearch, favoriteIds }),
-    [bridge, deferredSearch, favoriteIds]
+    }, [resetCollapsedProviders, routeKey])
   );
 
   useEffect(() => {
@@ -194,14 +194,8 @@ export function ModelPickerContent() {
       if (!item) {
         return null;
       }
-      if (item.type === 'header') {
-        return (
-          <View className="bg-secondary px-4 py-2">
-            <Text className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {item.title}
-            </Text>
-          </View>
-        );
+      if (item.type === 'header' || item.type === 'provider-header') {
+        return <ModelPickerSectionRow row={item} onToggleProvider={toggleProvider} />;
       }
 
       return (
@@ -225,6 +219,7 @@ export function ModelPickerContent() {
       handleToggleFavorite,
       selectedModel,
       selectedVariant,
+      toggleProvider,
     ]
   );
 

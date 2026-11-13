@@ -890,8 +890,11 @@ export function SessionDetailContent({
     );
     return {
       model: match?.name ?? match?.displayId ?? contextInfo.modelID,
+      // Only a CLI-catalog row names its own provider; a Gateway row's
+      // `provider` is the vendor the picker groups it by, and Kilo still serves
+      // the session's requests.
       provider:
-        match?.provider?.name ??
+        (match?.modelRef ? match.provider?.name : undefined) ??
         (contextInfo.providerID === 'kilo' ? 'Kilo' : contextInfo.providerID),
     };
   }, [contextInfo, displayModel, modelOptionsForToolbar]);

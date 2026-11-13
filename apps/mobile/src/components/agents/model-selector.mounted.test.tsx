@@ -46,7 +46,9 @@ vi.mock('@/components/ui/icons', () => ({
   Brain: 'Brain',
   Check: 'Check',
   ChevronDown: 'ChevronDown',
+  ImageIcon: 'ImageIcon',
   Star: 'Star',
+  Wrench: 'Wrench',
 }));
 vi.mock('@/components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }));
 vi.mock('@/components/ui/text', () => ({ Text: 'Text' }));
@@ -112,6 +114,43 @@ describe('ModelPickerOptionRow BYOK badge', () => {
     const renderer = renderRow(cliCatalogOption({ isFree: true, mayTrainOnYourPrompts: true }));
     expect(textStrings(renderer.root)).not.toContain(freeModelFreeLabel());
     expect(countWithAccessibilityLabel(renderer.root, freeModelDataLabel())).toBe(0);
+  });
+});
+
+// The vision capability was an icon-only badge, which left the fact unreadable
+// at a glance among the BYOK and free pills. The badge now states it in words,
+// from whatever source the option kind carries it in.
+describe('ModelPickerOptionRow vision badge', () => {
+  const visionLabel = i18n.t('modelChat.catalog.vision');
+
+  it('names image input in words beside the icon', () => {
+    const renderer = renderRow(cliCatalogOption({ supportsImages: true }));
+
+    expect(textStrings(renderer.root)).toContain(visionLabel);
+    expect(renderer.root.findAllByType('ImageIcon')).toHaveLength(1);
+  });
+
+  it('reads the chat model capability as well', () => {
+    const renderer = renderRow(cliCatalogOption({ capabilities: { tools: true, images: true } }));
+
+    expect(textStrings(renderer.root)).toContain(visionLabel);
+  });
+
+  it('shows no vision badge for a model that does not read images', () => {
+    const renderer = renderRow(cliCatalogOption({ supportsImages: false }));
+
+    expect(textStrings(renderer.root)).not.toContain(visionLabel);
+    expect(renderer.root.findAllByType('ImageIcon')).toHaveLength(0);
+  });
+
+  it('names image input in the row accessibility label', () => {
+    const renderer = renderRow(cliCatalogOption({ supportsImages: true }));
+    const imageCopy = i18n.t('modelChat.backends.modelImages');
+    const labels = renderer.root
+      .findAll(node => typeof node.props.accessibilityLabel === 'string')
+      .map(node => node.props.accessibilityLabel as string);
+
+    expect(labels.some(label => label.includes(imageCopy))).toBe(true);
   });
 });
 

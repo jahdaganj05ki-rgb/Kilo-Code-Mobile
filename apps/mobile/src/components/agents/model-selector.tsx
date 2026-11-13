@@ -305,6 +305,11 @@ export function ModelPickerOptionRow({
   // does not. The free Auto model is decided by id too: nine catalogs name it
   // with a free word the badge label does not contain.
   const showFreeBadge = free && !byok && !modelNameStatesFree(name, option.displayId);
+  // A CLI option names its provider by id; a Gateway option is grouped by the
+  // vendor its id names, and FAVORITES lists both kinds without a group header.
+  const providerLineId = showProvider
+    ? (option.modelRef?.providerID ?? option.provider?.name)
+    : undefined;
   const accessibilityLabel = formatList(
     [
       option.provider?.name,
@@ -356,9 +361,9 @@ export function ModelPickerOptionRow({
             >
               {name}
             </Text>
-            {option.modelRef && showProvider ? (
+            {providerLineId ? (
               <Text selectable className="font-mono text-xs text-muted-foreground">
-                {t('agentChat.modelSelector.provider', { id: option.modelRef.providerID })}
+                {t('agentChat.modelSelector.provider', { id: providerLineId })}
               </Text>
             ) : null}
             {option.displayId ? (
@@ -399,7 +404,17 @@ export function ModelPickerOptionRow({
                   />
                 ) : null}
                 {tools ? <Wrench size={13} color={colors.mutedForeground} /> : null}
-                {images ? <ImageIcon size={13} color={colors.mutedForeground} /> : null}
+                {/* A model that reads images says so in words, not only in an
+                 * icon: the icon alone left the fact unreadable at a glance,
+                 * and the row's accessibility label names it either way. */}
+                {images ? (
+                  <View className="flex-row items-center gap-1 rounded-full bg-neutral-200 px-2 py-0.5 dark:bg-neutral-700">
+                    <ImageIcon size={12} color={colors.mutedForeground} />
+                    <Text className="text-[11px] font-medium text-foreground">
+                      {t('modelChat.catalog.vision')}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </View>

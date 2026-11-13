@@ -12,6 +12,7 @@ import { sortRemoteModelCatalogProviders } from '@kilocode/cloud-agent-sdk/remot
 import { i18n } from '@/i18n';
 import { type ModelOption, type ModelPricing } from '@/lib/hooks/use-available-models';
 import { formatShortModelDisplayName, resolveCatalogModelName } from '@/lib/model-display-name';
+import { providerForModelId } from '@/lib/model-provider';
 
 type SessionModelSource =
   | 'cloud-agent-gateway'
@@ -35,6 +36,13 @@ export type SessionModelOption = {
   overrideSource?: RemoteModelOverride['source'];
   showGatewayMetadata: boolean;
   unavailable?: boolean;
+  /**
+   * Whether the model reads images, for each option kind that states it: a
+   * custom or on-device chat model through `capabilities.images`, a Gateway
+   * model through its input modalities, and a CLI catalogue model through the
+   * one vision signal that catalogue carries.
+   */
+  supportsImages?: boolean;
   /**
    * What a custom or on-device chat model receives. Absent for Kilo models: all
    * of them receive tools, and the attach control shows which read images.
@@ -222,6 +230,9 @@ function buildCliCatalogOptions(input: BuildSessionModelOptionsInput): SessionMo
         mayTrainOnYourPrompts: model.mayTrainOnYourPrompts,
         hasUserByokAvailable: model.hasUserByokAvailable,
         contextWindow: model.limits.context,
+        // `attachment` is the only image capability the v1 wire keeps per
+        // model; it is what the CLI gates file and image input on.
+        supportsImages: model.capabilities.attachment,
         provider: { id: provider.id, name: provider.name ?? provider.id },
         modelRef: { providerID: provider.id, modelID: model.id },
         overrideSource: 'cli-catalog',
@@ -312,8 +323,12 @@ function createGatewayOption(model: ModelOption): SessionModelOption {
   // Strip the raw `context_length` so it doesn't leak onto SessionModelOption;
   // the projection below owns the camelCase `contextWindow` field.
   const { context_length: _contextLength, ...rest } = model;
+  // A Gateway catalogue model names no provider; its id's vendor prefix is the
+  // only provider the picker can group it by.
+  const provider = providerForModelId(model.id);
   return {
     ...rest,
+    ...(provider ? { provider } : {}),
     displayId: model.id,
     contextWindow: model.context_length ?? undefined,
     showGatewayMetadata: true,

@@ -263,7 +263,12 @@ describe('buildModelPickerRows', () => {
     expect(
       buildModelPickerRows({ models: remoteModels, search: '', favoriteIds: noFavorites })
     ).toEqual([
-      { key: 'provider:anthropic-local', title: 'ANTHROPIC LOCAL', type: 'header' },
+      {
+        key: 'provider:anthropic-local',
+        title: 'ANTHROPIC LOCAL',
+        type: 'provider-header',
+        expanded: true,
+      },
       {
         key: 'model:remote-model-0',
         model: remoteModels[0],
@@ -271,7 +276,12 @@ describe('buildModelPickerRows', () => {
         showsProvider: false,
         type: 'model',
       },
-      { key: 'provider:custom-openai', title: 'CUSTOM OPENAI', type: 'header' },
+      {
+        key: 'provider:custom-openai',
+        title: 'CUSTOM OPENAI',
+        type: 'provider-header',
+        expanded: true,
+      },
       {
         key: 'model:remote-model-1',
         model: remoteModels[1],
@@ -287,7 +297,12 @@ describe('buildModelPickerRows', () => {
         favoriteIds: noFavorites,
       })
     ).toEqual([
-      { key: 'provider:custom-openai', title: 'CUSTOM OPENAI', type: 'header' },
+      {
+        key: 'provider:custom-openai',
+        title: 'CUSTOM OPENAI',
+        type: 'provider-header',
+        expanded: true,
+      },
       {
         key: 'model:remote-model-1',
         model: remoteModels[1],
@@ -312,6 +327,88 @@ describe('buildModelPickerRows', () => {
     ).toEqual([]);
   });
 
+  it('folds a collapsed provider section down to its header', () => {
+    expect(
+      buildModelPickerRows({
+        models: remoteModels,
+        search: '',
+        favoriteIds: noFavorites,
+        collapsedProviders: new Set(['provider:custom-openai']),
+      })
+    ).toEqual([
+      {
+        key: 'provider:anthropic-local',
+        title: 'ANTHROPIC LOCAL',
+        type: 'provider-header',
+        expanded: true,
+      },
+      {
+        key: 'model:remote-model-0',
+        model: remoteModels[0],
+        isFavorite: false,
+        showsProvider: false,
+        type: 'model',
+      },
+      {
+        key: 'provider:custom-openai',
+        title: 'CUSTOM OPENAI',
+        type: 'provider-header',
+        expanded: false,
+      },
+    ]);
+  });
+
+  it('opens a folded provider section while a search runs', () => {
+    // A query whose only match sits in a folded section must list that match:
+    // answering "No matches" beside a header that holds it reads as broken.
+    expect(
+      buildModelPickerRows({
+        models: remoteModels,
+        search: 'Internal',
+        favoriteIds: noFavorites,
+        collapsedProviders: new Set(['provider:custom-openai']),
+      })
+    ).toEqual([
+      {
+        key: 'provider:custom-openai',
+        title: 'CUSTOM OPENAI',
+        type: 'provider-header',
+        expanded: true,
+      },
+      {
+        key: 'model:remote-model-1',
+        model: remoteModels[1],
+        isFavorite: false,
+        showsProvider: false,
+        type: 'model',
+      },
+    ]);
+  });
+
+  it('keeps a recommended model in Recommended even when a provider could claim it', () => {
+    const recommendedWithProvider: SessionModelOption = {
+      ...gatewayClaude,
+      provider: { id: 'anthropic', name: 'Anthropic' },
+    };
+
+    expect(
+      buildModelPickerRows({
+        models: [recommendedWithProvider],
+        search: '',
+        favoriteIds: noFavorites,
+      })
+    ).toEqual([
+      { key: 'recommended', title: 'Recommended', type: 'header' },
+      {
+        key: 'model:anthropic/claude-sonnet-4',
+        model: recommendedWithProvider,
+        isFavorite: false,
+        showsProvider: true,
+        type: 'model',
+      },
+    ]);
+  });
+
   it('keeps a favorited remote model out of its provider group', () => {
     const favoriteIds = new Set(['remote:custom-openai:shared/model.id']);
     expect(buildModelPickerRows({ models: remoteModels, search: '', favoriteIds })).toEqual([
@@ -323,7 +420,12 @@ describe('buildModelPickerRows', () => {
         showsProvider: true,
         type: 'model',
       },
-      { key: 'provider:anthropic-local', title: 'ANTHROPIC LOCAL', type: 'header' },
+      {
+        key: 'provider:anthropic-local',
+        title: 'ANTHROPIC LOCAL',
+        type: 'provider-header',
+        expanded: true,
+      },
       {
         key: 'model:remote-model-0',
         model: remoteModels[0],
@@ -351,7 +453,12 @@ describe('buildModelPickerRows', () => {
         showsProvider: true,
         type: 'model',
       },
-      { key: 'provider:anthropic-local', title: 'ANTHROPIC LOCAL', type: 'header' },
+      {
+        key: 'provider:anthropic-local',
+        title: 'ANTHROPIC LOCAL',
+        type: 'provider-header',
+        expanded: true,
+      },
       {
         key: 'model:remote-model-1',
         model: reordered[1],
@@ -370,7 +477,12 @@ describe('buildModelPickerRows', () => {
     };
     expect(buildModelPickerRows({ models: [model], search: '', favoriteIds: noFavorites })).toEqual(
       [
-        { key: 'provider:kilo-instance', title: 'KİLO İNSTANCE', type: 'header' },
+        {
+          key: 'provider:kilo-instance',
+          title: 'KİLO İNSTANCE',
+          type: 'provider-header',
+          expanded: true,
+        },
         {
           key: 'model:remote-model-0',
           model,

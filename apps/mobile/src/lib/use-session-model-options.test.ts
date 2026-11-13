@@ -131,6 +131,9 @@ describe('buildSessionModelOptions', () => {
       'Anthropic Local',
       'Custom OpenAI',
     ]);
+    // `attachment` is the only image capability the v1 catalog carries per
+    // model, and it is what the picker's vision badge reads.
+    expect(result.options.map(option => option.supportsImages)).toEqual([true, false]);
     expect(result.options[0]).toMatchObject({
       modelRef: { providerID: 'anthropic-local', modelID: 'shared/model.id' },
       overrideSource: 'cli-catalog',
@@ -374,6 +377,7 @@ describe('buildSessionModelOptions', () => {
     expect(gatewayOption).toMatchObject({
       id: 'gateway/model',
       modelRef: { providerID: 'kilo', modelID: 'gateway/model' },
+      provider: { id: 'gateway', name: 'gateway' },
       overrideSource: 'legacy-gateway',
       showGatewayMetadata: true,
     });
@@ -548,10 +552,49 @@ describe('buildSessionModelOptions', () => {
     expect(result.options).toHaveLength(1);
     expect(result.options[0]?.pricing).toEqual(pricing);
   });
+
+  it('names a Gateway provider from the model id and leaves Kilo auto models ungrouped', () => {
+    const result = buildSessionModelOptions({
+      activeSessionType: 'cloud-agent',
+      remoteModelState: {
+        ownerConnectionId: null,
+        protocol: 'unknown',
+        refresh: 'idle',
+      },
+      observedModel: null,
+      remoteModelOverride: null,
+      gatewayModels: [
+        {
+          id: 'anthropic/claude-sonnet-4.6',
+          name: 'Claude Sonnet 4.6',
+          variants: [],
+          isPreferred: false,
+        },
+        {
+          id: 'nvidia-byok/nvidia-nemotron-4',
+          name: 'Nemotron 4',
+          variants: [],
+          isPreferred: false,
+        },
+        { id: 'kilo-auto/efficient', name: 'Auto Efficient', variants: [], isPreferred: true },
+        { id: 'unprefixed', name: 'Unprefixed', variants: [], isPreferred: false },
+      ],
+      gatewayModelsLoading: false,
+      organizationId: undefined,
+    });
+
+    expect(result.options.map(option => option.provider)).toEqual([
+      { id: 'anthropic', name: 'Anthropic' },
+      // A direct-BYOK id is `<provider>-byok/<model>`.
+      { id: 'nvidia', name: 'NVIDIA' },
+      undefined,
+      undefined,
+    ]);
+  });
 });
 
 describe('buildSessionModelOptions capacity projection', () => {
-  it('preserves Gateway picker grouping and favorite identity while projecting context capacity', () => {
+  it('groups Gateway options by the vendor their id names while projecting context capacity', () => {
     const result = buildSessionModelOptions({
       activeSessionType: 'cloud-agent',
       remoteModelState: {
@@ -585,14 +628,16 @@ describe('buildSessionModelOptions capacity projection', () => {
     if (!gatewayOption) {
       throw new Error('Expected a Gateway option');
     }
-    expect(gatewayOption.provider).toBeUndefined();
+    expect(gatewayOption.provider).toEqual({ id: 'gateway', name: 'gateway' });
     expect(gatewayOption.modelRef).toBeUndefined();
     expect(canonicalFavoriteId(gatewayOption)).toBe('gateway/recommended');
+    // The curated pick keeps its own section on top; the remaining Gateway
+    // model is grouped by the vendor its id names.
     expect(
       buildModelPickerRows({ models: result.options, search: '', favoriteIds: new Set() })
-        .filter(row => row.type === 'header')
+        .filter(row => row.type === 'header' || row.type === 'provider-header')
         .map(row => row.title)
-    ).toEqual(['Recommended', 'All models']);
+    ).toEqual(['Recommended', 'GATEWAY']);
   });
 
   it('projects Cloud Agent Gateway context_length onto every option', () => {

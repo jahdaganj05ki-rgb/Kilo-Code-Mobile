@@ -6,6 +6,18 @@ export type ModelPickerRow =
   | { key: string; title: string; type: 'header' }
   | {
       key: string;
+      title: string;
+      /**
+       * A provider section folds down to its own header, so the header is the
+       * control that opens and closes it. `expanded` is the state that control
+       * reports, and the rows below it exist only while it is true. The
+       * Recommended and All-models sections are not a provider and stay open.
+       */
+      type: 'provider-header';
+      expanded: boolean;
+    }
+  | {
+      key: string;
       model: SessionModelOption;
       isFavorite: boolean;
       /**
@@ -87,14 +99,19 @@ export function favoriteToggleAction(
   return { type: 'add', model: canonicalFavoriteId(option) };
 }
 
+const NO_COLLAPSED_PROVIDERS: ReadonlySet<string> = new Set<string>();
+
 export function buildModelPickerRows({
   models,
   search,
   favoriteIds,
+  collapsedProviders = NO_COLLAPSED_PROVIDERS,
 }: {
   models: SessionModelOption[];
   search: string;
   favoriteIds: Set<string>;
+  /** The provider sections the user folded shut, by their `<key>` (`provider:<id>`). */
+  collapsedProviders?: ReadonlySet<string>;
 }): ModelPickerRow[] {
   const query = search.toLowerCase().trim();
   const filtered = models.filter(model => !query || searchableText(model).includes(query));
@@ -133,7 +150,18 @@ export function buildModelPickerRows({
   }
 
   for (const group of groups.values()) {
-    rows.push({ key: group.key, title: group.title, type: 'header' });
+    // A search expands every section: a query whose only match sits in a
+    // folded section would otherwise answer "No matches" beside a header that
+    // holds the match.
+    const expanded = query !== '' || !collapsedProviders.has(group.key);
+    rows.push(
+      group.namesProvider
+        ? { key: group.key, title: group.title, type: 'provider-header', expanded }
+        : { key: group.key, title: group.title, type: 'header' }
+    );
+    if (!expanded) {
+      continue;
+    }
     for (const model of group.models) {
       rows.push({
         key: `model:${model.id}`,
@@ -168,6 +196,13 @@ function searchableText(model: SessionModelOption): string {
 function groupForModel(
   model: SessionModelOption
 ): Pick<ModelGroup, 'key' | 'namesProvider' | 'title'> {
+  // The curated picks stay one section on top, so a recommended model a
+  // provider prefix could claim is still found where the catalogue put it. A
+  // CLI catalogue never marks a model preferred, so its provider sections are
+  // unaffected by this precedence.
+  if (model.isPreferred) {
+    return { key: 'recommended', namesProvider: false, title: i18n.t('common.recommended') };
+  }
   if (model.provider) {
     return {
       key: `provider:${model.provider.id}`,
@@ -175,9 +210,6 @@ function groupForModel(
       // Locale-aware: a Turkish provider name uppercases `i` to `İ`.
       title: model.provider.name.toLocaleUpperCase(i18n.language),
     };
-  }
-  if (model.isPreferred) {
-    return { key: 'recommended', namesProvider: false, title: i18n.t('common.recommended') };
   }
   return { key: 'all', namesProvider: false, title: i18n.t('common.allModels') };
 }

@@ -31,7 +31,10 @@ export function resolveModelProviderName(
   options: SessionModelOption[]
 ): string {
   const match = findMatchingOption(providerID, modelID, options);
-  if (match?.provider?.name) {
+  // A Gateway row's `provider` is the vendor its model id names, which the
+  // picker groups it by. The provider that serves the session's requests is
+  // still Kilo, so only a CLI-catalog row names its own provider here.
+  if (match?.modelRef && match.provider?.name) {
     return match.provider.name;
   }
   return providerID === KILO_PROVIDER_ID ? 'Kilo' : providerID;

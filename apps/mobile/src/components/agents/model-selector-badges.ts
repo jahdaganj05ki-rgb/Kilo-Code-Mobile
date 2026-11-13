@@ -8,6 +8,12 @@ import {
 type ModelBadgeOption = ModelDataDisclosure & {
   showGatewayMetadata: boolean;
   capabilities?: { tools: boolean; images: boolean };
+  /**
+   * The image capability a non-chat option states: a Gateway catalogue model
+   * derives it from its input modalities, a CLI catalogue model from the only
+   * vision signal that wire carries.
+   */
+  supportsImages?: boolean;
 };
 
 /**
@@ -19,8 +25,10 @@ type ModelBadgeOption = ModelDataDisclosure & {
  * backend's hasUserByokAvailable through the v1 wire catalog, so the badge
  * must render for CLI-catalog options too. Free/data-collection stay gated
  * on showGatewayMetadata because CLI-catalog options do not carry Kilo
- * gateway pricing or data-policy semantics. Tools and images show only for
- * the custom and on-device chat models that state their capabilities.
+ * gateway pricing or data-policy semantics. Tools show only for the custom
+ * and on-device chat models that state them; images shows for every option
+ * kind that states the capability, either through the chat model's own
+ * `capabilities.images` or through `supportsImages`.
  */
 export function modelSelectorBadges(option: ModelBadgeOption | undefined) {
   const showGatewayMetadata = option?.showGatewayMetadata === true;
@@ -29,6 +37,6 @@ export function modelSelectorBadges(option: ModelBadgeOption | undefined) {
     free: showGatewayMetadata && isFreeModelOption(option),
     collectsData: showGatewayMetadata && mayTrainOnYourPrompts(option),
     tools: option?.capabilities?.tools === true,
-    images: option?.capabilities?.images === true,
+    images: option?.capabilities?.images === true || option?.supportsImages === true,
   };
 }
