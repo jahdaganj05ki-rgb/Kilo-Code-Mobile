@@ -27,13 +27,12 @@ name: Mobile Android release APK
 
 on:
   workflow_dispatch:
-  # The workflow has to exist on the default branch before it can be dispatched,
-  # so publishing it builds the first artifact without a second click. Code
-  # changes do not rebuild it: dispatch the workflow when you want a fresh APK.
+  # Every push to main produces an installable APK. This is the build the fork
+  # uses to look at the app: the native build workflow's debug dev-client APK
+  # needs Metro, and the Play release pipeline only runs for the upstream
+  # repository.
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/mobile-android-release-apk.yml'
 
 permissions:
   contents: read
