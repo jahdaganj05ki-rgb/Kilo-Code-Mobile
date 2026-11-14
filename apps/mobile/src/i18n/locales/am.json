@@ -251,6 +251,11 @@
   },
   "profile": {
     "providers": {
+      "loadModels": "Load models from provider",
+      "modelsLoaded": "{{count}} models loaded.",
+      "modelsLoadFailed": "Could not load the model list.",
+      "modelsLoadInvalidKey": "The provider rejected this key.",
+      "modelsEmpty": "The provider lists no models.",
       "title": "Providers & accounts",
       "rowSubtitle": "NVIDIA NIM and OpenRouter accounts",
       "description": "Requests on these accounts run with your own provider keys instead of Kilo credits.",

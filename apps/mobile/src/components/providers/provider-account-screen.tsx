@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Text } from '@/components/ui/text';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
+import { i18n } from '@/i18n';
 import {
   addChatBackend,
   type BackendModel,
@@ -17,8 +18,15 @@ import {
   updateChatBackend,
   useChatBackends,
 } from '@/lib/chat/backend-store';
+import { fetchProviderModels, ProviderModelsError } from '@/lib/chat/provider-models';
 import { providerPreference, setActiveProviderAccount } from '@/lib/chat/provider-policy';
 import { chatProvider } from '@/lib/chat/providers';
+
+const MODELS_PROBLEM_KEYS = {
+  invalidKey: 'profile.providers.modelsLoadInvalidKey',
+  unavailable: 'profile.providers.modelsLoadFailed',
+  empty: 'profile.providers.modelsEmpty',
+} as const;
 
 /** One model id per line; a blank line adds nothing, and a repeat keeps one. */
 function parseModelIds(input: string): BackendModel[] {
@@ -62,6 +70,7 @@ export function ProviderAccountScreen() {
   const [apiKey, setApiKey] = useState('');
   const [baseUrl, setBaseUrl] = useState(existing?.baseUrl ?? provider?.baseUrl ?? '');
   const [models, setModels] = useState(modelsText(existing?.models ?? []));
+  const [loadingModels, setLoadingModels] = useState(false);
 
   if (provider === undefined) {
     return (
@@ -117,6 +126,32 @@ export function ProviderAccountScreen() {
     }
     toast.success(t('profile.providers.saved'));
     router.back();
+  };
+
+  /**
+   * Fills the field from the provider's own catalogue. The key typed here wins
+   * over the stored one, so a rotated key can be checked before it is saved;
+   * without either, the call would answer 401 and tell the user nothing useful.
+   */
+  const loadModels = async () => {
+    const key = apiKey.trim() === '' ? (existing?.apiKey ?? '') : apiKey.trim();
+    if (key === '') {
+      toast.error(t('profile.providers.apiKeyRequired'));
+      return;
+    }
+    setLoadingModels(true);
+    try {
+      const loaded = await fetchProviderModels({ baseUrl, apiKey: key });
+      setModels(modelsText(loaded));
+      toast.success(t('profile.providers.modelsLoaded', { count: loaded.length }));
+    } catch (error) {
+      const problem = error instanceof ProviderModelsError ? error.problem : 'unavailable';
+      // A dynamic key, so it goes through the instance rather than the hook's
+      // literal-typed translate.
+      toast.error(i18n.t(MODELS_PROBLEM_KEYS[problem]));
+    } finally {
+      setLoadingModels(false);
+    }
   };
 
   const remove = () => {
@@ -198,6 +233,17 @@ export function ProviderAccountScreen() {
           autoCorrect={false}
           onChangeText={setModels}
         />
+        <Button
+          variant="outline"
+          className={STATE_ACTION_CLASS}
+          loading={loadingModels}
+          disabled={loadingModels}
+          onPress={() => {
+            void loadModels();
+          }}
+        >
+          <Text>{t('profile.providers.loadModels')}</Text>
+        </Button>
         {existing !== undefined && !isActive ? (
           <Button
             variant="outline"

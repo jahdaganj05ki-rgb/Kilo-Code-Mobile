@@ -251,6 +251,11 @@
   },
   "profile": {
     "providers": {
+      "loadModels": "Modelle vom Anbieter laden",
+      "modelsLoaded": "{{count}} Modelle geladen.",
+      "modelsLoadFailed": "Modellliste konnte nicht geladen werden.",
+      "modelsLoadInvalidKey": "Der Anbieter hat diesen Schlüssel abgelehnt.",
+      "modelsEmpty": "Der Anbieter listet keine Modelle.",
       "title": "Provider & Konten",
       "rowSubtitle": "Konten für NVIDIA NIM und OpenRouter",
       "description": "Anfragen dieser Konten laufen mit deinen eigenen Anbieter-Schlüsseln statt über dein Kilo-Guthaben.",
