@@ -480,6 +480,11 @@
     "changelog": "새로운 기능"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "일반",
     "voiceInput": "음성 입력",
     "autoExpandThinking": "추론 내용 자동 펼치기",

@@ -76,6 +76,7 @@ import { getAuthenticatedOwner, subscribeAuthenticatedOwner } from '@/lib/contex
 import { useRestoreErrorHold } from '@/lib/hooks/use-restore-error-hold';
 import { useScreenTracking } from '@/lib/hooks/use-screen-tracking';
 import { useSystemSearchOpenListener } from '@/lib/hooks/use-system-search-open-listener';
+import { preloadBuildModePreference } from '@/lib/hooks/use-build-mode-preference';
 import { preloadHideBalancePreference } from '@/lib/hooks/use-hide-balance-preference';
 import { useNavigationTheme } from '@/lib/hooks/use-navigation-theme';
 import {
@@ -222,6 +223,7 @@ prefetchCurrentUser();
 watchProviderCatalogs();
 preloadThemePreference();
 preloadHideBalancePreference();
+preloadBuildModePreference();
 preloadLanguagePreference();
 preloadStartupFonts();
 

@@ -480,6 +480,11 @@
     "changelog": "नया क्या है"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "सामान्य",
     "voiceInput": "वॉइस इनपुट",
     "autoExpandThinking": "विचार प्रक्रिया अपने आप खोलें",

@@ -480,6 +480,11 @@
     "changelog": "പുതിയ വിശേഷങ്ങൾ"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "പൊതുവായത്",
     "voiceInput": "ശബ്ദ ഇൻപുട്ട്",
     "autoExpandThinking": "ചിന്തയുടെ വിശദാംശങ്ങൾ സ്വയമേവ കാണിക്കുക",

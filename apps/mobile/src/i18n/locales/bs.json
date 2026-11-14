@@ -480,6 +480,11 @@
     "changelog": "Šta je novo"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "Općenito",
     "voiceInput": "Glasovni unos",
     "autoExpandThinking": "Automatski proširi razmišljanje",

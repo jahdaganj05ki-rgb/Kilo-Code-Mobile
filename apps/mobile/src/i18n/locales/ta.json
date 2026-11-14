@@ -480,6 +480,11 @@
     "changelog": "புதியவை"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "பொது",
     "voiceInput": "குரல் உள்ளீடு",
     "autoExpandThinking": "சிந்தனையைத் தானாக விரிக்கவும்",

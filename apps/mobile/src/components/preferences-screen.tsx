@@ -17,6 +17,10 @@ import { ConfigureRow } from '@/components/ui/configure-row';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import {
+  type BuildMode,
+  useBuildModePreference,
+} from '@/lib/hooks/use-build-mode-preference';
+import {
   setThemePreference,
   type ThemePreference,
   useThemePreference,
@@ -30,6 +34,7 @@ import {
 export function PreferencesScreen() {
   const router = useRouter();
   const { preference: themePreference } = useThemePreference();
+  const { buildMode, setBuildMode } = useBuildModePreference();
   const { t } = useTranslation();
 
   return (
@@ -126,6 +131,27 @@ export function PreferencesScreen() {
             router.push('/(app)/(tabs)/(3_profile)/spend-alerts' as Href);
           }}
         />
+
+        {/* Developer: the choices that only matter to someone building the app
+            itself, kept in their own section so they do not read as everyday
+            preferences. */}
+        <View className="mt-3 gap-3">
+          <Text variant="small" className="uppercase tracking-wide text-muted-foreground">
+            {t('preferences.developer')}
+          </Text>
+          <SegmentedControl<BuildMode>
+            accessibilityLabel={t('preferences.buildMode')}
+            options={[
+              { value: 'actions', label: t('preferences.buildModeActions') },
+              { value: 'local', label: t('preferences.buildModeLocal') },
+            ]}
+            value={buildMode}
+            onChange={setBuildMode}
+          />
+          <Text variant="muted" className="text-xs">
+            {t('preferences.buildModeSubtitle')}
+          </Text>
+        </View>
       </TabScreenScrollView>
     </View>
   );

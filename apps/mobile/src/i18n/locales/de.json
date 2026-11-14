@@ -480,6 +480,11 @@
     "changelog": "Neuigkeiten"
   },
   "preferences": {
+    "developer": "Entwickler",
+    "buildMode": "APK-Builds",
+    "buildModeSubtitle": "Wo APK-Builds dieser App laufen: der GitHub-Actions-Workflow im Fork oder ein lokaler Build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Lokal",
     "general": "Allgemein",
     "voiceInput": "Spracheingabe",
     "autoExpandThinking": "Denkprozess automatisch aufklappen",

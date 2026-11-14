@@ -480,6 +480,11 @@
     "changelog": "Yangiliklar"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "Umumiy",
     "voiceInput": "Ovozli kiritish",
     "autoExpandThinking": "Fikrlash matnini avtomatik ochish",

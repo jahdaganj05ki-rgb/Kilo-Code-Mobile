@@ -5,6 +5,12 @@ import {
   getCondenseToolCalls,
   setCondenseToolCalls,
 } from '@/lib/hooks/use-condense-tool-calls-preference';
+import {
+  BUILD_MODES,
+  type BuildMode,
+  getBuildMode,
+  setBuildMode,
+} from '@/lib/hooks/use-build-mode-preference';
 import { getHideBalance, setHideBalance } from '@/lib/hooks/use-hide-balance-preference';
 import { getHideThinking, setHideThinking } from '@/lib/hooks/use-hide-thinking-preference';
 import { getKeepScreenOn, setKeepScreenOn } from '@/lib/hooks/use-keep-screen-on-preference';
@@ -175,6 +181,22 @@ export const ENTRIES: readonly AppSettingEntry[] = [
       }),
   },
   languageEntry,
+  {
+    name: 'buildMode',
+    description:
+      'Where an APK build of this app runs: `actions` for the fork\'s GitHub Actions workflow, `local` for a build on this machine.',
+    kind: 'enum',
+    options: BUILD_MODES,
+    bind: () =>
+      enumSetting({
+        name: 'buildMode',
+        options: BUILD_MODES,
+        read: getBuildMode,
+        write: value => {
+          setBuildMode(value as BuildMode);
+        },
+      }),
+  },
   {
     name: 'notifications.previews',
     description: 'Whether notification previews show their content or stay generic.',

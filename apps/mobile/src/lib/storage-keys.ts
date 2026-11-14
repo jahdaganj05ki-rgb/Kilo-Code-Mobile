@@ -52,6 +52,8 @@ export const LOGIN_SSO_RECOVERY_DRAFT_KEY = 'login-sso-recovery-draft';
 export const KEEP_SCREEN_ON_KEY = 'keep-session-screen-on';
 /** Profile credit balance masked as `*****`. Device preference; survives reboot. */
 export const HIDE_BALANCE_KEY = 'hide-balance';
+/** Where APK builds run: `actions` (the fork's workflow) or `local`. */
+export const BUILD_MODE_KEY = 'build-mode';
 /** The painted stand-in for an amount the hide-balance preference keeps off screen. */
 export const HIDDEN_BALANCE = '*****';
 export const LIVE_ACTIVITY_KEY = 'live-activity-enabled';

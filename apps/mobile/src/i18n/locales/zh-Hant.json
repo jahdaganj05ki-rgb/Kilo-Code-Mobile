@@ -480,6 +480,11 @@
     "changelog": "最新消息"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "一般",
     "voiceInput": "語音輸入",
     "autoExpandThinking": "自動展開思考內容",

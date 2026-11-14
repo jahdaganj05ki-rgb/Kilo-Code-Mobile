@@ -480,6 +480,11 @@
     "changelog": "ಹೊಸತೇನಿದೆ"
   },
   "preferences": {
+    "developer": "Developer",
+    "buildMode": "APK builds",
+    "buildModeSubtitle": "Where APK builds of this app run: the fork's GitHub Actions workflow, or a local build.",
+    "buildModeActions": "GitHub Actions",
+    "buildModeLocal": "Local",
     "general": "ಸಾಮಾನ್ಯ",
     "voiceInput": "ಧ್ವನಿ ಇನ್ಪುಟ್",
     "autoExpandThinking": "ಯೋಚನೆಯನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ವಿಸ್ತರಿಸಿ",
