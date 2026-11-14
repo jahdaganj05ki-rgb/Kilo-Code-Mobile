@@ -66,7 +66,7 @@ export function ModelPickerContent() {
   const acceptsVariant = bridge?.acceptsVariant ?? true;
   // The rows and the provider sections folded shut. The sheet itself owns only
   // the search field and the selection.
-  const { resetCollapsedProviders, rows, toggleProvider } = useModelPickerRows({
+  const { providerCounts, resetCollapsedProviders, rows, toggleProvider } = useModelPickerRows({
     favoriteIds,
     models: bridge?.options,
     search: deferredSearch,
@@ -195,7 +195,13 @@ export function ModelPickerContent() {
         return null;
       }
       if (item.type === 'header' || item.type === 'provider-header') {
-        return <ModelPickerSectionRow row={item} onToggleProvider={toggleProvider} />;
+        return (
+          <ModelPickerSectionRow
+            row={item}
+            count={item.type === 'provider-header' ? providerCounts.get(item.key) : undefined}
+            onToggleProvider={toggleProvider}
+          />
+        );
       }
 
       return (
@@ -218,6 +224,7 @@ export function ModelPickerContent() {
       handleSelectVariant,
       handleToggleFavorite,
       selectedModel,
+      providerCounts,
       selectedVariant,
       toggleProvider,
     ]

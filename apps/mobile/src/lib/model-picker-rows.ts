@@ -176,6 +176,41 @@ export function buildModelPickerRows({
   return rows;
 }
 
+/**
+ * How many models each provider section holds, by the section's `<key>`.
+ *
+ * Counted from the options rather than from the rows, because a folded section
+ * has no model rows left to count and its header still has to state the size it
+ * is hiding. The rules mirror `buildModelPickerRows` — same filter, same
+ * favorites removal, same grouping — so the number and the rows cannot disagree.
+ */
+export function providerSectionCounts({
+  favoriteIds,
+  models,
+  search,
+}: {
+  models: SessionModelOption[];
+  search: string;
+  favoriteIds: Set<string>;
+}): Map<string, number> {
+  const query = search.toLowerCase().trim();
+  const counts = new Map<string, number>();
+  for (const model of models) {
+    if (query && !searchableText(model).includes(query)) {
+      continue;
+    }
+    if (isFavoriteOption(model, favoriteIds)) {
+      continue;
+    }
+    const group = groupForModel(model);
+    if (!group.namesProvider) {
+      continue;
+    }
+    counts.set(group.key, (counts.get(group.key) ?? 0) + 1);
+  }
+  return counts;
+}
+
 function searchableText(model: SessionModelOption): string {
   return [
     model.name,

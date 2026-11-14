@@ -1,7 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { type SessionModelOption } from '@/lib/hooks/use-session-model-options';
-import { buildModelPickerRows, type ModelPickerRow } from '@/lib/model-picker-rows';
+import {
+  buildModelPickerRows,
+  type ModelPickerRow,
+  providerSectionCounts,
+} from '@/lib/model-picker-rows';
 
 type ModelPickerRows = {
   rows: ModelPickerRow[];
@@ -9,6 +13,8 @@ type ModelPickerRows = {
   toggleProvider: (key: string) => void;
   /** Opens every section; the sheet calls it when it gains focus. */
   resetCollapsedProviders: () => void;
+  /** How many models each provider section holds, by the section's `<key>`. */
+  providerCounts: Map<string, number>;
 };
 
 /**
@@ -40,6 +46,11 @@ export function useModelPickerRows({
     [collapsedProviders, favoriteIds, models, search]
   );
 
+  const providerCounts = useMemo(
+    () => providerSectionCounts({ models: models ?? [], search, favoriteIds }),
+    [favoriteIds, models, search]
+  );
+
   // Folding a section is neither a commit nor a selection: it changes no state
   // the app keeps, so it takes no haptic.
   const toggleProvider = useCallback((key: string) => {
@@ -58,5 +69,5 @@ export function useModelPickerRows({
     setCollapsedProviders(new Set<string>());
   }, []);
 
-  return { resetCollapsedProviders, rows, toggleProvider };
+  return { providerCounts, resetCollapsedProviders, rows, toggleProvider };
 }
