@@ -318,6 +318,10 @@
   },
   "profile": {
     "providers": {
+      "catalogRefresh": "Refresh model catalogue",
+      "catalogRefreshed": "{{count}} models listed.",
+      "outdatedModels": "The provider no longer lists: {{models}}",
+      "removeOutdated": "Remove unlisted models",
       "loadModels": "Load models from provider",
       "modelsLoaded": "{{count}} models loaded.",
       "modelsLoadFailed": "Could not load the model list.",

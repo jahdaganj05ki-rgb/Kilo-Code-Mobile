@@ -18,6 +18,11 @@ import {
   updateChatBackend,
   useChatBackends,
 } from '@/lib/chat/backend-store';
+import {
+  providerCatalogModels,
+  saveProviderCatalog,
+  useProviderCatalogs,
+} from '@/lib/chat/provider-catalog';
 import { fetchProviderModels, ProviderModelsError } from '@/lib/chat/provider-models';
 import { providerPreference, setActiveProviderAccount } from '@/lib/chat/provider-policy';
 import { chatProvider } from '@/lib/chat/providers';
@@ -62,6 +67,7 @@ export function ProviderAccountScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ provider?: string; account?: string }>();
   const backends = useChatBackends();
+  useProviderCatalogs();
   const provider = chatProvider(params.provider ?? '');
   const existing =
     params.account === undefined ? undefined : backends.find(one => one.id === params.account);
@@ -84,6 +90,16 @@ export function ProviderAccountScreen() {
   }
 
   const isActive = providerPreference(provider.id).activeAccountId === existing?.id;
+  // Models this account still offers that the provider's last answer no longer
+  // lists. They are not hidden silently: the account says which ones they are
+  // and offers to drop them.
+  const listedIds = new Set((providerCatalogModels(provider.id) ?? []).map(model => model.id));
+  const outdated =
+    listedIds.size === 0
+      ? []
+      : parseModelIds(models)
+          .filter(model => !listedIds.has(model.id))
+          .map(model => model.id);
 
   const save = () => {
     const trimmedName = name.trim();
@@ -142,6 +158,9 @@ export function ProviderAccountScreen() {
     setLoadingModels(true);
     try {
       const loaded = await fetchProviderModels({ baseUrl, apiKey: key });
+      // The picker filters on this snapshot, so a load here is what makes the
+      // next model list the provider's current one rather than the saved one.
+      saveProviderCatalog(provider.id, loaded);
       setModels(modelsText(loaded));
       toast.success(t('profile.providers.modelsLoaded', { count: loaded.length }));
     } catch (error) {
@@ -233,6 +252,26 @@ export function ProviderAccountScreen() {
           autoCorrect={false}
           onChangeText={setModels}
         />
+        {outdated.length > 0 ? (
+          <View className="gap-2">
+            <Text variant="muted" className="text-xs">
+              {t('profile.providers.outdatedModels', {
+                models: `${outdated.slice(0, 5).join(', ')}${outdated.length > 5 ? ' …' : ''}`,
+              })}
+            </Text>
+            <Button
+              variant="outline"
+              className={STATE_ACTION_CLASS}
+              onPress={() => {
+                setModels(
+                  modelsText(parseModelIds(models).filter(model => listedIds.has(model.id)))
+                );
+              }}
+            >
+              <Text>{t('profile.providers.removeOutdated')}</Text>
+            </Button>
+          </View>
+        ) : null}
         <Button
           variant="outline"
           className={STATE_ACTION_CLASS}

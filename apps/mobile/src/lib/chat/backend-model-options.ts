@@ -11,6 +11,7 @@ import {
 } from './backend-target';
 import { BACKEND_EFFORT_VARIANTS } from './effort';
 import { type LocalModelStatus } from './local-models';
+import { providerCatalogModels } from './provider-catalog';
 import { CHAT_PROVIDER_IDS, chatProvider } from './providers';
 
 export function backendModelOptions(backends: readonly StoredChatBackend[]): SessionModelOption[] {
@@ -59,12 +60,18 @@ function providerModelOptions(backends: readonly StoredChatBackend[]): SessionMo
   }
   const options: SessionModelOption[] = [];
   for (const providerId of CHAT_PROVIDER_IDS) {
-    const models = modelsByProvider.get(providerId);
     const provider = chatProvider(providerId);
-    if (models === undefined || provider === undefined) {
+    // The provider's own last answer wins over the models an account was saved
+    // with: an id it no longer lists is not offered, and an id it lists now is
+    // (with the capabilities it states). Without a snapshot the saved list is
+    // all the app knows, and it stays in use.
+    const listed = providerCatalogModels(providerId);
+    const models: readonly BackendModel[] =
+      listed ?? [...(modelsByProvider.get(providerId)?.values() ?? [])];
+    if (provider === undefined) {
       continue;
     }
-    for (const model of models.values()) {
+    for (const model of models) {
       options.push({
         id: providerTargetId(providerId, model.id),
         // The section header names the provider, so the row names the model.

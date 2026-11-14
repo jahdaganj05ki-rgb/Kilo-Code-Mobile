@@ -1,6 +1,8 @@
 import { type Href, useRouter } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
+import { toast } from 'sonner-native';
 
 import { ScreenHeader } from '@/components/screen-header';
 import { TabScreenScrollView } from '@/components/tab-screen';
@@ -22,6 +24,7 @@ import {
   setProviderPolicy,
   useProviderPreferences,
 } from '@/lib/chat/provider-policy';
+import { refreshProviderCatalog, useProviderCatalogs } from '@/lib/chat/provider-catalog';
 import { CHAT_PROVIDER_IDS, chatProvider } from '@/lib/chat/providers';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
 import { i18n } from '@/i18n';
@@ -60,6 +63,25 @@ export function ProvidersScreen() {
   const router = useRouter();
   const backends = useChatBackends();
   useProviderPreferences();
+  useProviderCatalogs();
+  const [refreshing, setRefreshing] = useState<string | null>(null);
+
+  /**
+   * The picker offers what the provider lists, so this is the control that makes
+   * that statement true. It asks every enabled account of the provider at once
+   * and keeps one catalogue for the provider.
+   */
+  const refreshCatalog = async (providerId: string) => {
+    setRefreshing(providerId);
+    try {
+      const models = await refreshProviderCatalog(providerId, backends);
+      toast.success(t('profile.providers.catalogRefreshed', { count: models.length }));
+    } catch {
+      toast.error(t('profile.providers.modelsLoadFailed'));
+    } finally {
+      setRefreshing(null);
+    }
+  };
 
   const openAccount = (providerId: string, accountId?: string) => {
     router.push({
@@ -135,6 +157,17 @@ export function ProvidersScreen() {
                 }}
               >
                 <Text>{t('profile.providers.addAccount')}</Text>
+              </Button>
+              <Button
+                variant="outline"
+                className={STATE_ACTION_CLASS}
+                loading={refreshing === providerId}
+                disabled={refreshing !== null}
+                onPress={() => {
+                  void refreshCatalog(providerId);
+                }}
+              >
+                <Text>{t('profile.providers.catalogRefresh')}</Text>
               </Button>
               <View className="gap-1">
                 <Text variant="small" className="uppercase tracking-wide text-muted-foreground">

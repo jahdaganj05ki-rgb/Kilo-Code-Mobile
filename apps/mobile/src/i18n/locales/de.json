@@ -251,6 +251,10 @@
   },
   "profile": {
     "providers": {
+      "catalogRefresh": "Modellkatalog aktualisieren",
+      "catalogRefreshed": "{{count}} Modelle gelistet.",
+      "outdatedModels": "Nicht mehr gelistet: {{models}}",
+      "removeOutdated": "Nicht gelistete Modelle entfernen",
       "loadModels": "Modelle vom Anbieter laden",
       "modelsLoaded": "{{count}} Modelle geladen.",
       "modelsLoadFailed": "Modellliste konnte nicht geladen werden.",
