@@ -2,6 +2,7 @@ import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { type MobileRouter } from '@kilocode/trpc/mobile';
 
 import { preloadedAuthToken } from '@/lib/auth/auth-context';
+import { refreshStaleProviderCatalogs } from '@/lib/chat/provider-catalog';
 import { queryClient } from '@/lib/query-client';
 import { trpcClient } from '@/lib/trpc';
 
@@ -16,6 +17,16 @@ const trpcOptions = createTRPCOptionsProxy<MobileRouter>({ client: trpcClient, q
 // no dataUpdatedAt, so the mounted useQuery refetches immediately and the
 // error handling then runs exactly as today. Net cost: one extra failed request
 // on the already-broken-token path.
+/**
+ * Keeps a provider account's model catalogue current without the user asking.
+ * The work is bounded — accounts that are switched off, providers without an
+ * account, and a catalogue refreshed in the last half day are all skipped — and
+ * it starts after the accounts load, so it never delays the first screen.
+ */
+export function refreshProviderCatalogsOnStartup(): void {
+  void refreshStaleProviderCatalogs().catch(() => undefined);
+}
+
 export function prefetchCurrentUser(): void {
   void (async () => {
     try {
