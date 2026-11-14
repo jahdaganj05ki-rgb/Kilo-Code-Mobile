@@ -75,7 +75,7 @@ export function ProvidersScreen() {
   /** Pull-to-refresh asks every provider that has an enabled account. */
   const refreshAll = async () => {
     setPullRefreshing(true);
-    let listed = 0;
+    let answered = 0;
     try {
       for (const providerId of CHAT_PROVIDER_IDS) {
         const usable = backends.filter(
@@ -87,12 +87,21 @@ export function ProvidersScreen() {
         }
         try {
           // eslint-disable-next-line no-await-in-loop -- one provider at a time, the same order the buttons take
-          listed += (await refreshProviderCatalog(providerId, usable)).length;
+          const models = await refreshProviderCatalog(providerId, usable);
+          answered += 1;
+          // Named per provider: one number for both would count NVIDIA NIM's
+          // catalogue into an OpenRouter answer and say nothing about either.
+          toast.success(
+            t('profile.providers.catalogRefreshedFor', {
+              provider: chatProvider(providerId)?.name ?? providerId,
+              count: models.length,
+            })
+          );
         } catch {
           // Reported once below: one provider without an answer is not a total failure.
         }
       }
-      if (listed === 0) {
+      if (answered === 0) {
         toast.error(t('profile.providers.modelsLoadFailed'));
       }
     } finally {
