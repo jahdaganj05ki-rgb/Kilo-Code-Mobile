@@ -80,6 +80,13 @@ jobs:
       - name: Restore or build tRPC declarations
         uses: ./.github/actions/trpc-declarations
 
+      # The app's types are checked here because every other mobile workflow is
+      # disabled in this fork: without this step nothing would notice a type
+      # error before the APK carries it. It runs before prebuild so a type
+      # failure ends the job in a minute instead of after the Gradle build.
+      - name: Typecheck the app
+        run: pnpm --filter kilo-app run typecheck
+
       - name: Expo prebuild
         run: CI=1 pnpm --filter kilo-app exec expo prebuild --platform android
 
