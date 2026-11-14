@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { normalizeBackendUrl } from './backend-url';
 import { type BackendModel } from './backend-store';
-import { remoteChatFetch } from './fetch';
+import { remoteChatGet } from './fetch';
 
 /**
  * The model list an OpenAI-compatible provider publishes at `<baseUrl>/models`.
@@ -64,12 +64,9 @@ export async function fetchProviderModels(input: {
   readonly apiKey: string;
 }): Promise<BackendModel[]> {
   const base = normalizeBackendUrl(input.baseUrl, false).replace(/\/+$/u, '');
-  const response = await remoteChatFetch(`${base}/models`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${input.apiKey}`,
-      Accept: 'application/json',
-    },
+  const response = await remoteChatGet(`${base}/models`, {
+    Authorization: `Bearer ${input.apiKey}`,
+    Accept: 'application/json',
   });
   if (response.status === 401 || response.status === 403) {
     throw new ProviderModelsError('invalidKey');

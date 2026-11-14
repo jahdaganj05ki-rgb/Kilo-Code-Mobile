@@ -64,6 +64,36 @@ export const chatFetch: FetchLike = async (url, request) => {
   };
 };
 
+/**
+ * A GET to a provider the user configured, under the same rules as a chat call.
+ *
+ * It is not `remoteChatFetch`: the harness's request type states `POST`, because
+ * the harness only ever posts a completion, and a model list is the one read this
+ * app makes against such an endpoint. The transport guard, dropped cookies and
+ * refused redirects are the part that must not diverge, so they live here beside
+ * the call they protect.
+ */
+export async function remoteChatGet(
+  url: string,
+  headers: Record<string, string>
+): Promise<{ ok: boolean; status: number; text: () => Promise<string> }> {
+  assertBackendTransport(url);
+  const response = await expoFetch(url, {
+    method: 'GET',
+    headers,
+    credentials: 'omit',
+    redirect: 'error',
+  });
+  return {
+    ok: response.ok,
+    status: response.status,
+    text: async () => {
+      const text = await response.text();
+      return text;
+    },
+  };
+}
+
 /** Custom endpoints never receive Kilo headers, cookies, or redirected credentials. */
 export const remoteChatFetch: FetchLike = async (url, request) => {
   assertBackendTransport(url);
