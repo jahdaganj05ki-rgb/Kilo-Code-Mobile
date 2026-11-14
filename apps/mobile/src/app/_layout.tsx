@@ -66,7 +66,7 @@ import { shouldStartAnalytics } from '@/lib/analytics-consent';
 import { isPostHogReady, subscribeToPostHogReady } from '@/lib/analytics/posthog';
 import { drainStartupTimings } from '@/lib/startup-drain';
 import { isStartupComplete, markStartup, markStartupComplete } from '@/lib/startup-timing';
-import { prefetchCurrentUser, refreshProviderCatalogsOnStartup } from '@/lib/startup-prefetch';
+import { prefetchCurrentUser, watchProviderCatalogs } from '@/lib/startup-prefetch';
 import { useAnalyticsConsentGate } from '@/lib/hooks/use-analytics-consent-gate';
 import { useForceUpdate } from '@/lib/hooks/use-force-update';
 import { useAppLifecycle } from '@/lib/hooks/use-app-lifecycle';
@@ -217,8 +217,9 @@ captureLaunchDeepLink();
 captureSystemSearchLaunch();
 prefetchCurrentUser();
 // A provider catalogue that nobody refreshes silently stops describing the
-// provider, and the picker would offer retired models again.
-refreshProviderCatalogsOnStartup();
+// provider, and the picker would offer retired models again. Watched for the
+// life of the process: at launch and on every return to the foreground.
+watchProviderCatalogs();
 preloadThemePreference();
 preloadHideBalancePreference();
 preloadLanguagePreference();

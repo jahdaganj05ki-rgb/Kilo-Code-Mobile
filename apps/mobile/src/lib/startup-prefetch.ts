@@ -1,5 +1,6 @@
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { type MobileRouter } from '@kilocode/trpc/mobile';
+import { AppState } from 'react-native';
 
 import { preloadedAuthToken } from '@/lib/auth/auth-context';
 import { refreshStaleProviderCatalogs } from '@/lib/chat/provider-catalog';
@@ -17,14 +18,32 @@ const trpcOptions = createTRPCOptionsProxy<MobileRouter>({ client: trpcClient, q
 // no dataUpdatedAt, so the mounted useQuery refetches immediately and the
 // error handling then runs exactly as today. Net cost: one extra failed request
 // on the already-broken-token path.
+/** Registered once for the life of the process. */
+let catalogWatching = false;
+
 /**
  * Keeps a provider account's model catalogue current without the user asking.
+ *
  * The work is bounded — accounts that are switched off, providers without an
  * account, and a catalogue refreshed in the last half day are all skipped — and
  * it starts after the accounts load, so it never delays the first screen.
+ *
+ * A launch is not the only moment the app can learn something: a phone keeps an
+ * app in memory for days, and the catalogue is most stale exactly then. Returning
+ * to the foreground runs the same bounded check, which costs a comparison unless
+ * the snapshot really is old enough to ask again.
  */
-export function refreshProviderCatalogsOnStartup(): void {
+export function watchProviderCatalogs(): void {
   void refreshStaleProviderCatalogs().catch(() => undefined);
+  if (catalogWatching) {
+    return;
+  }
+  catalogWatching = true;
+  AppState.addEventListener('change', state => {
+    if (state === 'active') {
+      void refreshStaleProviderCatalogs().catch(() => undefined);
+    }
+  });
 }
 
 export function prefetchCurrentUser(): void {
