@@ -251,6 +251,8 @@
   },
   "profile": {
     "providers": {
+      "catalogUpdated": "Catalogue updated {{when}}",
+      "catalogNever": "Catalogue not loaded yet",
       "catalogRefresh": "Refresh model catalogue",
       "catalogRefreshed": "{{count}} models listed.",
       "outdatedModels": "The provider no longer lists: {{models}}",

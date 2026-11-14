@@ -1,7 +1,7 @@
 import { type Href, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 import { toast } from 'sonner-native';
 
 import { ScreenHeader } from '@/components/screen-header';
@@ -24,7 +24,12 @@ import {
   setProviderPolicy,
   useProviderPreferences,
 } from '@/lib/chat/provider-policy';
-import { refreshProviderCatalog, useProviderCatalogs } from '@/lib/chat/provider-catalog';
+import {
+  providerCatalog,
+  refreshProviderCatalog,
+  useProviderCatalogs,
+} from '@/lib/chat/provider-catalog';
+import { formatDate } from '@/lib/format';
 import { CHAT_PROVIDER_IDS, chatProvider } from '@/lib/chat/providers';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
 import { i18n } from '@/i18n';
@@ -65,6 +70,35 @@ export function ProvidersScreen() {
   useProviderPreferences();
   useProviderCatalogs();
   const [refreshing, setRefreshing] = useState<string | null>(null);
+  const [pullRefreshing, setPullRefreshing] = useState(false);
+
+  /** Pull-to-refresh asks every provider that has an enabled account. */
+  const refreshAll = async () => {
+    setPullRefreshing(true);
+    let listed = 0;
+    try {
+      for (const providerId of CHAT_PROVIDER_IDS) {
+        const usable = backends.filter(
+          account =>
+            account.provider === providerId && account.enabled !== false && account.apiKey !== ''
+        );
+        if (usable.length === 0) {
+          continue;
+        }
+        try {
+          // eslint-disable-next-line no-await-in-loop -- one provider at a time, the same order the buttons take
+          listed += (await refreshProviderCatalog(providerId, usable)).length;
+        } catch {
+          // Reported once below: one provider without an answer is not a total failure.
+        }
+      }
+      if (listed === 0) {
+        toast.error(t('profile.providers.modelsLoadFailed'));
+      }
+    } finally {
+      setPullRefreshing(false);
+    }
+  };
 
   /**
    * The picker offers what the provider lists, so this is the control that makes
@@ -97,6 +131,14 @@ export function ProvidersScreen() {
         className="flex-1"
         contentContainerClassName="gap-6 px-4 pb-10 pt-4"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={pullRefreshing}
+            onRefresh={() => {
+              void refreshAll();
+            }}
+          />
+        }
       >
         <Text variant="muted" className="text-xs">
           {t('profile.providers.description')}
@@ -108,11 +150,26 @@ export function ProvidersScreen() {
           }
           const accounts = backends.filter(backend => backend.provider === providerId);
           const { policy, activeAccountId } = providerPreference(providerId);
+          const catalog = providerCatalog(providerId);
           return (
             <View key={providerId} className="gap-3">
-              <Text variant="small" className="uppercase tracking-wide text-muted-foreground">
-                {provider.name}
-              </Text>
+              <View className="gap-0.5">
+                <Text variant="small" className="uppercase tracking-wide text-muted-foreground">
+                  {provider.name}
+                </Text>
+                <Text variant="muted" className="text-xs">
+                  {catalog === undefined
+                    ? t('profile.providers.catalogNever')
+                    : t('profile.providers.catalogUpdated', {
+                        when: formatDate(new Date(catalog.fetchedAt), i18n.language, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        }),
+                      })}
+                </Text>
+              </View>
               <View className="rounded-lg bg-secondary px-3">
                 {accounts.length === 0 ? (
                   <Text variant="muted" className="py-3 text-xs">
