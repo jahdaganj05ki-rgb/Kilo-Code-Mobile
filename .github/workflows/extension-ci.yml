@@ -1,11 +1,9 @@
 name: extension CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-
-# Cancel in-progress runs when a new commit is pushed to the same PR
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}

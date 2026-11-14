@@ -6,9 +6,10 @@ name: Extension Store Release
 # apps/extension/package.json and opens the bump PR so the next run produces a
 # higher version (stores reject re-used version numbers).
 
-on:
-  workflow_dispatch:
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 concurrency:
   group: extension-store-release
   cancel-in-progress: false

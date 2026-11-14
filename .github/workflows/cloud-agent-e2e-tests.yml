@@ -1,24 +1,9 @@
 name: Cloud Agent E2E tests
 
-on:
-  workflow_dispatch:
-    inputs:
-      worker_url:
-        description: 'HTTPS URL of the deployed cloud-agent-next Worker'
-        required: true
-        type: string
-        default: 'https://cloud-agent-e2e-test.engineering-e11.workers.dev'
-      fake_llm_url:
-        description: 'HTTPS URL of the deployed fake-LLM Worker'
-        required: true
-        type: string
-        default: 'https://fake-llm.engineering-e11.workers.dev'
-      backend_url:
-        description: 'HTTPS URL of the Kilo backend that issues stream tickets'
-        required: true
-        type: string
-        default: 'https://api.kilo.ai'
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
 

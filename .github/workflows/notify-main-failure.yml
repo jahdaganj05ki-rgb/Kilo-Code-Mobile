@@ -1,22 +1,9 @@
 name: Notify Main Workflow Failure
 
-on:
-  workflow_run:
-    # E2E retains its existing notification with per-scenario failure details.
-    workflows:
-      - Auto-docs intake
-      - Chromatic
-      - CI
-      - extension CI
-      - kilo-app CI
-      - kilo-app Release
-      - Kilo MCP catalog
-      - mobile-native-build
-      - SBOM
-      - Secret Scanning
-    types: [completed]
-    branches: [main]
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions: {}
 
 jobs:

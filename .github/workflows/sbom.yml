@@ -8,21 +8,10 @@ name: SBOM
 # Container-image SBOMs are handled separately in deploy-kiloclaw.yml, where
 # they are attested against the image digest in GHCR.
 
-on:
-  push:
-    branches: [main]
-    # syft reads only pnpm-lock.yaml (see the header), so a push that changes
-    # nothing but sources would regenerate a byte-identical dependency SBOM
-    # under a new <sha> name.
-    paths:
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/sbom.yml'
-  schedule:
-    # Weekly (Mondays 04:00 UTC) — regenerate against the unchanged lockfile.
-    # Sets up future vulnerability re-scans against newly disclosed CVEs.
-    - cron: '0 4 * * 1'
-  workflow_dispatch:
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
 

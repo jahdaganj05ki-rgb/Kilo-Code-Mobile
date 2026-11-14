@@ -17,14 +17,10 @@ name: kilo-mcp Release
 # A rerun of a failed attempt reuses the tag that points at the deployed
 # commit, so it completes the release instead of skipping it.
 
-on:
-  workflow_call:
-    inputs:
-      source_sha:
-        description: 'The commit deploy-workers deployed'
-        required: true
-        type: string
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
 

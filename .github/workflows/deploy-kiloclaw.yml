@@ -2,24 +2,10 @@ name: Deploy KiloClaw
 
 # Manual-only deploy: run from the Actions tab. The scheduled production
 # pipeline (deploy-production.yml) no longer calls this workflow.
-on:
-  workflow_dispatch:
-    inputs:
-      source_sha:
-        description: 'Exact tested commit to deploy (defaults to the selected ref)'
-        required: false
-        default: ''
-        type: string
-  workflow_call:
-    inputs:
-      source_sha:
-        description: 'Exact tested commit to deploy (defaults to the caller SHA)'
-        required: false
-        default: ''
-        type: string
-
-# Least-privilege default for the whole workflow. Each job opts into only the
-# scopes it needs via its own `permissions:` block below.
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
 

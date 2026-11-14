@@ -1,21 +1,9 @@
 name: Check Deployment Changes
 
-on:
-  workflow_call:
-    inputs:
-      workflow_file:
-        required: true
-        type: string
-    outputs:
-      base_sha:
-        value: ${{ jobs.check.outputs.base_sha }}
-      target_sha:
-        value: ${{ jobs.check.outputs.target_sha }}
-      should_deploy:
-        value: ${{ jobs.check.outputs.should_deploy }}
-      deploy_kiloclaw:
-        value: ${{ jobs.check.outputs.deploy_kiloclaw }}
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   actions: read

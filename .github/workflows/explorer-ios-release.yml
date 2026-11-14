@@ -1,25 +1,10 @@
 # Explorer-only simulator Release builds; Xcode ad-hoc signs locally, never signs or publishes a store app.
 name: explorer-ios-release
 run-name: explorer-ios-release ${{ inputs.fingerprint }}
-on:
-  workflow_dispatch:
-    inputs:
-      cloud_ref:
-        description: Full Kilo-Org/cloud commit SHA to build
-        required: true
-        type: string
-      fingerprint:
-        description: Explorer commit/recipe/environment/CA build key
-        required: true
-        type: string
-      mobile_env:
-        description: Base64 inert explorer .env.local (no credentials)
-        required: true
-        type: string
-      ca:
-        description: Base64 PEM explorer proxy CA certificate (never a private key)
-        required: true
-        type: string
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 concurrency:
   group: explorer-ios-release-${{ inputs.fingerprint }}
   cancel-in-progress: false

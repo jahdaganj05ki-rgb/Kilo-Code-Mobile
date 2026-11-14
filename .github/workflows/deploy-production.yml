@@ -1,17 +1,9 @@
 name: Deploy to Production
 
-on:
-  # A completed main CI run is the normal start: a new deployable candidate can
-  # only appear when CI turns a main push green. The hourly poll is the catch-up
-  # path when a completion event is missed, and dispatch stays manual.
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
-    branches: [main]
-  schedule:
-    - cron: '7 * * * *'
-  workflow_dispatch:
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   actions: read

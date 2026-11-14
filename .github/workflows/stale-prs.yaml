@@ -1,9 +1,9 @@
 name: Mark and close stale Pull Requests
 
-on:
-  schedule:
-    - cron: '30 0 * * *' # Runs daily at 00:30 UTC
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 jobs:
   stale:
     # Guard: a fork with Actions enabled can trigger this on schedule, and it

@@ -1,30 +1,9 @@
 name: Promote Vercel Deployment
 
-on:
-  workflow_call:
-    inputs:
-      deployment_url:
-        description: 'Vercel deployment URL to promote'
-        required: true
-        type: string
-      axiom_annotation_dataset:
-        description: 'Optional Axiom dataset used to scope deployment annotations'
-        required: false
-        type: string
-        default: ''
-      axiom_expected_project:
-        description: 'Vercel project name the promoted deployment must match before annotating'
-        required: false
-        type: string
-        default: 'kilocode-app'
-    secrets:
-      VERCEL_TOKEN:
-        description: 'Vercel token used to promote the deployment'
-        required: true
-      AXIOM_ANNOTATION_TOKEN:
-        description: 'Optional Axiom token used to annotate the deployment'
-        required: false
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
 

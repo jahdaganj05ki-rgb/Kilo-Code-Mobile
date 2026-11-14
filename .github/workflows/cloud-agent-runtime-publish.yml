@@ -2,18 +2,10 @@ name: Publish Cloud Agent runtime
 # Deployments find the publication for their exact SHA by this title (runtime-publication-runs.ts).
 run-name: Publish Cloud Agent runtime ${{ github.event.workflow_run.head_sha || inputs.source_sha }}
 
-on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      source_sha:
-        description: Exact main commit SHA with a successful CI run
-        required: true
-        type: string
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   actions: read

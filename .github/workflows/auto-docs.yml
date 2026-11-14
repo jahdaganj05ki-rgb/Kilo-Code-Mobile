@@ -3,17 +3,10 @@ name: Auto-docs intake
 # Trigger when PRs are merged to main, or manually with a PR number for testing.
 # IMPORTANT: This workflow does NOT check out PR code and does NOT execute any
 # code from the PR branch. It only reads PR metadata and forwards it to a webhook.
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'PR number to process manually'
-        required: true
-        type: number
-
-# Minimal permissions: read repo contents and PR metadata only.
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   pull-requests: read

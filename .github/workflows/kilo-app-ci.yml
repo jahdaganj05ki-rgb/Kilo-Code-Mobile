@@ -29,18 +29,10 @@ name: kilo-app CI
 # `oxfmt --list-different .` covers apps/mobile on every PR, merge-queue entry
 # and main push, so this workflow needs no formatter job of its own.
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-  merge_group:
-  workflow_call:
-
-# Cancel in-progress runs when a new commit is pushed to the same PR. A main
-# push must reach a conclusion instead: the release reuses that conclusion for
-# the commit, and a cancelled run leaves it running the suite again. GitHub
-# still drops a run that is only pending when a third run enters the group, and
-# such a run never started, so it costs no work.
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}

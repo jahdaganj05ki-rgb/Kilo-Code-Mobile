@@ -1,67 +1,9 @@
 name: Deploy Cloudflare Workers
 
-on:
-  workflow_dispatch:
-    inputs:
-      worker:
-        description: 'Worker folder to deploy (e.g. services/session-ingest)'
-        required: true
-        type: string
-      target_environment:
-        description: 'Worker environment to deploy to'
-        required: false
-        default: production
-        type: choice
-        options:
-          - production
-          - staging
-  # A call does one of two things, decided by its inputs:
-  #
-  # * detection: `base_sha` is set and `worker_matrix` is empty, so only
-  #   `detect-changes` runs and the call publishes the matrix as an output.
-  #   A caller can start it as soon as it holds the baseline, beside other work.
-  # * deploy: `worker_matrix` holds the matrix a detection call produced, so only
-  #   the deploy jobs run, behind the caller's gate, with the same SHAs.
-  #
-  # Manual dispatch stays the single-Worker path (`worker`).
-  workflow_call:
-    inputs:
-      worker:
-        description: 'Worker folder to deploy for single-worker calls'
-        required: false
-        default: ''
-        type: string
-      base_sha:
-        description: 'Base SHA to diff against when detecting changed workers'
-        required: false
-        default: ''
-        type: string
-      worker_matrix:
-        description: 'JSON array of Worker folders to deploy; a call without it only detects changes'
-        required: false
-        default: ''
-        type: string
-      deploy_cloud_agent_after_session_ingest:
-        description: 'Deploy session-ingest and then cloud-agent-next ahead of the parallel matrix'
-        required: false
-        default: 'false'
-        type: string
-      source_sha:
-        description: 'Exact tested commit to deploy (defaults to the caller SHA)'
-        required: false
-        default: ''
-        type: string
-      target_environment:
-        description: 'Worker environment to deploy to'
-        required: false
-        default: production
-        type: string
-    outputs:
-      matrix:
-        value: ${{ jobs.detect-changes.outputs.matrix }}
-      deploy-cloud-agent-after-session-ingest:
-        value: ${{ jobs.detect-changes.outputs.deploy-cloud-agent-after-session-ingest }}
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   actions: read

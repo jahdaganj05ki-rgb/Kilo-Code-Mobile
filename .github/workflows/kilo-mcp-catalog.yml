@@ -39,19 +39,10 @@ name: Kilo MCP catalog
 # The CI wiring of this file is asserted by scripts/kilo-mcp-catalog.test.mjs
 # (same pattern as scripts/stacked-ci.test.mjs in .github/workflows/ci.yml).
 
-on:
-  # No paths filter: `catalog (PR)` is a required status check, and a
-  # path-filtered workflow leaves that check "Expected" (blocking) on every PR
-  # it skips. The job gates its own work instead. Same for push: the merge job
-  # is required on main, so every main push triggers the workflow and the job
-  # gates its own work against the pushed diff.
-  pull_request:
-  merge_group:
-  push:
-    branches: [main]
-
-# New commits to the same PR supersede in-progress runs; a main push must not
-# be cancelled mid-Vectorize-upsert.
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}

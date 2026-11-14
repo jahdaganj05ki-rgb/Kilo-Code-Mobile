@@ -1,28 +1,9 @@
 name: kilo-app Release
 
-on:
-  push:
-    branches: [main]
-    # kilo-app and its direct workspace:* inputs. No pnpm-lock.yaml: an
-    # unrelated bump elsewhere in the monorepo must not submit a build. A bump
-    # of an app dependency also edits apps/mobile/package.json, which is here.
-    paths:
-      - 'apps/mobile/**'
-      - 'packages/trpc/**'
-      - 'packages/app-shared/**'
-      - 'packages/event-service/**'
-      - 'packages/notifications/**'
-      - 'packages/cloud-agent-sdk/**'
-  workflow_dispatch:
-  # A held release must run later even when main goes quiet: no push means no
-  # run, and the held submission would wait for ever. A held or no-change run
-  # costs only the check-changes job.
-  schedule:
-    - cron: '41 * * * *'
-
-# cancel-in-progress: false lets a running release finish. GitHub keeps one run
-# pending per group and cancels the previously pending run, so a burst of merges
-# releases the newest commit, not every one of them.
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 concurrency:
   group: kilo-app-release
   cancel-in-progress: false

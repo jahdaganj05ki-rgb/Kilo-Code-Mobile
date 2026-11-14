@@ -1,16 +1,9 @@
 name: Deploy Web to Staging
 
-on:
-  # Same trigger as the production pipeline: a completed main CI run starts the
-  # lookup, the hourly poll is the catch-up path, and dispatch stays manual.
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
-    branches: [main]
-  schedule:
-    - cron: '7 * * * *'
-  workflow_dispatch:
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   actions: read

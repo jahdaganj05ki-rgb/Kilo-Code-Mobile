@@ -1,24 +1,9 @@
 name: Setup Smoke
 
-on:
-  schedule:
-    # The pull_request trigger below covers every change to a setup input, so the
-    # clock trigger only sweeps for drift (a moved upstream image, an expiring
-    # external dependency). One sweep a day is enough for that: an upstream break
-    # is found within a day, and a setup change never waits for the clock.
-    - cron: '17 4 * * *'
-  workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - '.env.local.example'
-      - 'apps/web/.env'
-      - 'apps/web/.env.development.local.example'
-      - 'dev/local/setup-env.ts'
-      - 'dev/local/env-sync/**'
-      - 'scripts/dev.sh'
-      - '.github/workflows/setup-smoke.yml'
-
+# Silenced in this fork. Its only build is the arm64 release APK
+# (mobile-android-release-apk.yml); this workflow is kept so the fork can
+# restore the upstream pipeline by reverting this commit.
+on: workflow_dispatch
 permissions:
   contents: read
   issues: write
