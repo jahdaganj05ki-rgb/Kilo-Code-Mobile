@@ -318,7 +318,7 @@
   },
   "profile": {
     "providers": {
-      "catalogRefreshedFor": "{{provider}}: {{count}} models listed.",
+      "catalogsRefreshed": "Updated: {{providers}}",
       "catalogUpdated": "Catalogue updated {{when}}",
       "catalogNever": "Catalogue not loaded yet",
       "catalogRefresh": "Refresh model catalogue",

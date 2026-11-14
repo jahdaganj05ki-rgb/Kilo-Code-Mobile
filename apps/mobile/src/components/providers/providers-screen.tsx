@@ -29,7 +29,7 @@ import {
   refreshProviderCatalog,
   useProviderCatalogs,
 } from '@/lib/chat/provider-catalog';
-import { formatDate } from '@/lib/format';
+import { formatDate, formatList } from '@/lib/format';
 import { CHAT_PROVIDER_IDS, chatProvider } from '@/lib/chat/providers';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
 import { i18n } from '@/i18n';
@@ -75,7 +75,7 @@ export function ProvidersScreen() {
   /** Pull-to-refresh asks every provider that has an enabled account. */
   const refreshAll = async () => {
     setPullRefreshing(true);
-    let answered = 0;
+    const listed: string[] = [];
     try {
       for (const providerId of CHAT_PROVIDER_IDS) {
         const usable = backends.filter(
@@ -88,21 +88,21 @@ export function ProvidersScreen() {
         try {
           // eslint-disable-next-line no-await-in-loop -- one provider at a time, the same order the buttons take
           const models = await refreshProviderCatalog(providerId, usable);
-          answered += 1;
-          // Named per provider: one number for both would count NVIDIA NIM's
-          // catalogue into an OpenRouter answer and say nothing about either.
-          toast.success(
-            t('profile.providers.catalogRefreshedFor', {
-              provider: chatProvider(providerId)?.name ?? providerId,
-              count: models.length,
-            })
-          );
+          // The count stays attached to its provider's name, so the single
+          // message still says which catalogue the number describes.
+          listed.push(`${chatProvider(providerId)?.name ?? providerId} (${models.length})`);
         } catch {
           // Reported once below: one provider without an answer is not a total failure.
         }
       }
-      if (answered === 0) {
+      if (listed.length === 0) {
         toast.error(t('profile.providers.modelsLoadFailed'));
+      } else {
+        toast.success(
+          t('profile.providers.catalogsRefreshed', {
+            providers: formatList(listed, i18n.language),
+          })
+        );
       }
     } finally {
       setPullRefreshing(false);
