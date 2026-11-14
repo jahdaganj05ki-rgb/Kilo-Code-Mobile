@@ -54,7 +54,7 @@ function toModel(entry: z.infer<typeof modelSchema>): BackendModel {
 /**
  * Reads the provider's catalogue with the account's own key.
  *
- * The call goes through `remoteChatFetch`, so it leaves the app without cookies,
+ * The call goes through `remoteChatGet`, so it leaves the app without cookies,
  * without redirects, and only over a transport the app already accepts for a
  * custom endpoint. A key the provider rejects is reported as such instead of as
  * a network failure, because the two ask the user for different things.
