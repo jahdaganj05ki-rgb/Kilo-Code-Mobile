@@ -155,18 +155,31 @@ jobs:
             fi
             echo "Injected signing was not applied; signing $unsigned directly"
             cp "$unsigned" "$apk"
-            apksigner sign \
+          fi
+
+          # An APK Android will not install is not an artifact worth uploading,
+          # so sign when the build left no signature and verify either way.
+          # Every apksigner call goes through the resolved path: it lives in the
+          # SDK's build-tools, which the runner does not put on PATH.
+          if ! "$apksigner" verify "$apk" > /dev/null 2>&1; then
+            echo "The release APK carries no signature; signing it here"
+            "$apksigner" sign \
               --ks app/debug.keystore \
               --ks-pass pass:android \
               --key-pass pass:android \
               --ks-key-alias androiddebugkey \
               "$apk"
           fi
+          "$apksigner" verify --print-certs "$apk" | head -4
 
-          # An APK Android will not install is not an artifact worth uploading.
-          apksigner verify --print-certs "$apk"
+          ls -l "$out"
           cp "$apk" "$RUNNER_TEMP/kilo-android-release.apk"
-          ls -lh "$RUNNER_TEMP/kilo-android-release.apk" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo '### kilo-android-release.apk'
+            ls -lh "$RUNNER_TEMP/kilo-android-release.apk" | awk '{print "size: " $5}'
+            echo "commit: ${GITHUB_SHA}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          ls -lh "$RUNNER_TEMP/kilo-android-release.apk"
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
