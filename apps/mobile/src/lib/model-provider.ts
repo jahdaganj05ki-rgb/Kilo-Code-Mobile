@@ -1,74 +1,17 @@
-import { stripModelPrefix } from './model-id';
-
 /**
- * The vendor a gateway model id names. The wire catalogue carries no provider
- * field for a gateway model — its id is `<vendor>/<model>` — so the picker reads
- * the vendor from the id and names it here. A vendor the table does not list
- * keeps its slug rather than a guessed brand name.
+ * The provider every catalog model the Kilo gateway serves belongs to.
+ *
+ * The wire catalog names no provider for a gateway model — its id is
+ * `<vendor>/<model>` — so the picker used to split the gateway into one section
+ * per vendor. That grouping named the model's author, not who serves and bills
+ * the request: an `anthropic/…` model, an `openai/…` model and a `kilo-auto/…`
+ * model all run on gateway credit under the user's Kilo account. The picker
+ * groups by the latter, so every gateway model is one section.
+ *
+ * A model served by the user's own provider account is grouped by that account's
+ * provider instead, which is a property of the stored backend and not of the id.
  */
-const VENDOR_NAMES: Readonly<Record<string, string>> = {
-  alibaba: 'Alibaba',
-  amazon: 'Amazon',
-  anthropic: 'Anthropic',
-  'arcee-ai': 'Arcee AI',
-  baidu: 'Baidu',
-  bytedance: 'ByteDance',
-  cohere: 'Cohere',
-  deepseek: 'DeepSeek',
-  google: 'Google',
-  inception: 'Inception',
-  liquid: 'Liquid AI',
-  'meta-llama': 'Meta',
-  meta: 'Meta',
-  microsoft: 'Microsoft',
-  minimax: 'MiniMax',
-  mistral: 'Mistral AI',
-  mistralai: 'Mistral AI',
-  moonshot: 'Moonshot AI',
-  moonshotai: 'Moonshot AI',
-  nousresearch: 'Nous Research',
-  nvidia: 'NVIDIA',
-  openai: 'OpenAI',
-  openrouter: 'OpenRouter',
-  poolside: 'Poolside',
-  qwen: 'Qwen',
-  stepfun: 'StepFun',
-  tencent: 'Tencent',
-  'x-ai': 'xAI',
-  xai: 'xAI',
-  'z-ai': 'Z.ai',
-  zai: 'Z.ai',
+export const KILO_GATEWAY_PROVIDER: Readonly<{ id: string; name: string }> = {
+  id: 'kilo-gateway',
+  name: 'Kilo Gateway',
 };
-
-/**
- * Kilo's own models are not a vendor group: they are the picker's curated
- * picks and stay in Recommended (or All models when a tier is not recommended).
- */
-const KILO_OWN_PREFIXES = new Set(['kilo-auto']);
-
-/** A direct-BYOK id is `<provider>-byok/<model>`; its vendor is the provider. */
-const BYOK_ID_SUFFIX = '-byok';
-
-/**
- * The provider a gateway model belongs to, derived from its id, or `undefined`
- * when the id names no vendor (Kilo's own models, or an id without a prefix).
- */
-export function providerForModelId(
-  modelId: string | null | undefined
-): { id: string; name: string } | undefined {
-  const normalized = stripModelPrefix(modelId).toLowerCase();
-  const separator = normalized.indexOf('/');
-  if (separator <= 0) {
-    return undefined;
-  }
-
-  const prefix = normalized.slice(0, separator);
-  if (KILO_OWN_PREFIXES.has(prefix)) {
-    return undefined;
-  }
-
-  const vendor = prefix.endsWith(BYOK_ID_SUFFIX)
-    ? prefix.slice(0, -BYOK_ID_SUFFIX.length)
-    : prefix;
-  return { id: vendor, name: VENDOR_NAMES[vendor] ?? vendor };
-}

@@ -12,7 +12,7 @@ import { sortRemoteModelCatalogProviders } from '@kilocode/cloud-agent-sdk/remot
 import { i18n } from '@/i18n';
 import { type ModelOption, type ModelPricing } from '@/lib/hooks/use-available-models';
 import { formatShortModelDisplayName, resolveCatalogModelName } from '@/lib/model-display-name';
-import { providerForModelId } from '@/lib/model-provider';
+import { KILO_GATEWAY_PROVIDER } from '@/lib/model-provider';
 
 type SessionModelSource =
   | 'cloud-agent-gateway'
@@ -323,12 +323,12 @@ function createGatewayOption(model: ModelOption): SessionModelOption {
   // Strip the raw `context_length` so it doesn't leak onto SessionModelOption;
   // the projection below owns the camelCase `contextWindow` field.
   const { context_length: _contextLength, ...rest } = model;
-  // A Gateway catalogue model names no provider; its id's vendor prefix is the
-  // only provider the picker can group it by.
-  const provider = providerForModelId(model.id);
+  // A Gateway catalogue model names no provider, and the vendor in its id is
+  // the model's author rather than who serves and bills the request. Every one
+  // of them is served on Kilo credit, so they are one picker group.
   return {
     ...rest,
-    ...(provider ? { provider } : {}),
+    provider: KILO_GATEWAY_PROVIDER,
     displayId: model.id,
     contextWindow: model.context_length ?? undefined,
     showGatewayMetadata: true,
