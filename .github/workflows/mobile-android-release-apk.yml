@@ -42,7 +42,7 @@ concurrency:
 jobs:
   apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -101,6 +101,17 @@ jobs:
         run: |
           set -euo pipefail
           cd apps/mobile/android
+
+          # The generated project inherits Gradle's 2 GiB default heap, and R8
+          # exhausts it while minifying this app's dependency set:
+          # `:app:minifyReleaseWithR8` died with java.lang.OutOfMemoryError after
+          # ~24 minutes. The runner has 16 GiB, so raise the build JVM instead of
+          # dropping minification: the artifact then stays the variant the store
+          # build produces.
+          grep -v '^org.gradle.jvmargs=' gradle.properties > gradle.properties.next
+          mv gradle.properties.next gradle.properties
+          printf 'org.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=1g\n' >> gradle.properties
+          grep '^org.gradle.jvmargs=' gradle.properties
 
           # apksigner lives in the SDK's build-tools and is not on PATH, so
           # resolve the newest installed one and fail early when the runner
