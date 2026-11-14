@@ -2761,6 +2761,8 @@
       "dismissed": "Ieteikums noraidīts"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Modeļa izvēle",
       "noModelsDescription": "Nav pieejamu modeļu, ko izvēlēties.",
       "favorites": "Izlase"

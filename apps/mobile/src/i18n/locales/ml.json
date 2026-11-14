@@ -2715,6 +2715,8 @@
       "dismissed": "നിർദ്ദേശം ഒഴിവാക്കി"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "മോഡൽ തിരഞ്ഞെടുക്കുക",
       "noModelsDescription": "തിരഞ്ഞെടുക്കാൻ മോഡലുകൾ ലഭ്യമല്ല.",
       "favorites": "പ്രിയപ്പെട്ടവ"

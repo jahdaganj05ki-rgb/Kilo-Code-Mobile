@@ -2807,6 +2807,8 @@
       "dismissed": "Návrh skryt"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Výběr modelu",
       "favorites": "Oblíbené",
       "noModelsDescription": "K výběru nejsou k dispozici žádné modely."

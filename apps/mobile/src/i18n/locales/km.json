@@ -2715,6 +2715,8 @@
       "dismissed": "បានបោះបង់ការណែនាំ"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "ជ្រើសរើសម៉ូដែល",
       "noModelsDescription": "គ្មានម៉ូដែលណាអាចជ្រើសរើសបានទេ។",
       "favorites": "ចំណូលចិត្ត"

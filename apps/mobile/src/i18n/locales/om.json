@@ -2715,6 +2715,8 @@
       "dismissed": "Yaadni dhiyaate haqameera"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Moodela filadhu",
       "favorites": "Kan jaallatte",
       "noModelsDescription": "Moodeloonni filatamuu danda'an hin jiran."

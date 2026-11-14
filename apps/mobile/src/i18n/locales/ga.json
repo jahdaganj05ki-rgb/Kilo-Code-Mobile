@@ -2853,6 +2853,8 @@
       "dismissed": "Moladh curtha i leataobh"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Roghnaigh samhail",
       "noModelsDescription": "Níl aon samhail ar fáil le roghnú.",
       "favorites": "Cinn is fearr leat"

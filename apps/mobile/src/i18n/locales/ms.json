@@ -2715,6 +2715,8 @@
       "dismissed": "Cadangan diabaikan"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Pilih model",
       "noModelsDescription": "Tiada model tersedia untuk dipilih.",
       "favorites": "Kegemaran"

@@ -2761,6 +2761,8 @@
       "dismissed": "Suggeriment descartat"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Model",
       "favorites": "Preferits",
       "noModelsDescription": "No hi ha cap model per seleccionar."

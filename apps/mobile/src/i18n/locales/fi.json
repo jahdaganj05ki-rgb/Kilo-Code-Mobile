@@ -2715,6 +2715,8 @@
       "dismissed": "Ehdotus hylätty"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Valitse malli",
       "noModelsDescription": "Valittavissa ei ole malleja.",
       "favorites": "Suosikit"

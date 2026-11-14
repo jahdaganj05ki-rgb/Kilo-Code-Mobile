@@ -2715,6 +2715,8 @@
       "dismissed": "ପରାମର୍ଶ ଖାରଜ ହେଲା"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "ମଡେଲ୍ ବାଛନ୍ତୁ",
       "favorites": "ପସନ୍ଦର ମଡେଲ୍",
       "noModelsDescription": "ବାଛିବାକୁ କୌଣସି ମଡେଲ୍ ଉପଲବ୍ଧ ନାହିଁ।"

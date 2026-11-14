@@ -2173,6 +2173,8 @@
       "dismissed": "Suggestie genegeerd"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Model selecteren",
       "favorites": "Favorieten",
       "noModelsDescription": "Er zijn geen modellen beschikbaar om te selecteren."

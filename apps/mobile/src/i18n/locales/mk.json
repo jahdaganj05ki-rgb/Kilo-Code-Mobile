@@ -2715,6 +2715,8 @@
       "dismissed": "Предлогот е отфрлен"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Избор на модел",
       "noModelsDescription": "Нема достапни модели за избор.",
       "favorites": "Омилени"

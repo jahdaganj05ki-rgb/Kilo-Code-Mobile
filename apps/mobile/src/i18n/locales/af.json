@@ -2715,6 +2715,8 @@
       "dismissed": "Voorstel verwerp"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Kies model",
       "favorites": "Gunstelinge",
       "noModelsDescription": "Geen modelle is beskikbaar om te kies nie."

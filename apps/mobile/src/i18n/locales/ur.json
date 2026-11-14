@@ -2715,6 +2715,8 @@
       "dismissed": "تجویز مسترد کر دی گئی"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "ماڈل منتخب کریں",
       "noModelsDescription": "منتخب کرنے کے لیے کوئی ماڈل دستیاب نہیں ہے۔",
       "favorites": "پسندیدہ"

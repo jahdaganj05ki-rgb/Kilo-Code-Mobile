@@ -2767,6 +2767,8 @@
       "dismissed": "Sugestão ignorada"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Selecionar modelo",
       "favorites": "Favoritos",
       "noModelsDescription": "Não há modelos disponíveis para selecionar."

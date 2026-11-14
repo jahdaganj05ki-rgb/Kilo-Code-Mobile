@@ -2715,6 +2715,8 @@
       "dismissed": "Soovitus tagasi lükatud"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Vali mudel",
       "noModelsDescription": "Valimiseks pole ühtegi mudelit saadaval.",
       "favorites": "Lemmikud"

@@ -2715,6 +2715,8 @@
       "dismissed": "સૂચન દૂર કર્યું"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "મોડલ પસંદ કરો",
       "noModelsDescription": "પસંદ કરવા માટે કોઈ મોડલ ઉપલબ્ધ નથી.",
       "favorites": "મનપસંદ"

@@ -2219,6 +2219,8 @@
       "dismissed": "Пропозицію відхилено"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Вибір моделі",
       "noModelsDescription": "Немає доступних моделей.",
       "favorites": "Обране"

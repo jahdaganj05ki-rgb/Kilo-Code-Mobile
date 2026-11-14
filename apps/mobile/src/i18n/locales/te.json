@@ -2715,6 +2715,8 @@
       "dismissed": "సూచనను తీసివేశాము"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "మోడల్‌ను ఎంచుకోండి",
       "noModelsDescription": "ఎంచుకోవడానికి మోడళ్లు అందుబాటులో లేవు.",
       "favorites": "ఇష్టమైనవి"

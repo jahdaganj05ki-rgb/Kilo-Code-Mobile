@@ -1,6 +1,7 @@
 import { type SessionModelOption } from '@/lib/hooks/use-session-model-options';
 import { i18n } from '@/i18n';
 import { autoModelLabel } from '@/lib/auto-model-name';
+import { modelNameStatesFree } from '@/lib/free-model-data-disclosure';
 
 export type ModelPickerRow =
   | { key: string; title: string; type: 'header' }
@@ -99,6 +100,25 @@ export function favoriteToggleAction(
   return { type: 'add', model: canonicalFavoriteId(option) };
 }
 
+/** OpenRouter names a free model with the `:free` suffix. */
+const FREE_PROVIDER_SUFFIX = /:free$/i;
+
+/**
+ * Whether a model costs nothing, from the three places that say so: the
+ * gateway's own flag, a provider id that ends in `:free`, and a name that
+ * already states it (`Laguna S 2.1 (free)`, Kilo's Auto Free in every locale).
+ * The name matters because the free filter must find exactly the models whose
+ * rows show free — a badge-free row that matched the word "free" would be a
+ * bug the user reads as a wrong answer.
+ */
+export function isFreeModel(model: SessionModelOption): boolean {
+  return (
+    model.isFree === true ||
+    FREE_PROVIDER_SUFFIX.test(model.displayId) ||
+    modelNameStatesFree(model.name, model.displayId)
+  );
+}
+
 const NO_COLLAPSED_PROVIDERS: ReadonlySet<string> = new Set<string>();
 
 export function buildModelPickerRows({
@@ -106,15 +126,21 @@ export function buildModelPickerRows({
   search,
   favoriteIds,
   collapsedProviders = NO_COLLAPSED_PROVIDERS,
+  freeOnly = false,
 }: {
   models: SessionModelOption[];
   search: string;
   favoriteIds: Set<string>;
   /** The provider sections the user folded shut, by their `<key>` (`provider:<id>`). */
   collapsedProviders?: ReadonlySet<string>;
+  /** Keep only the models that cost nothing; the free chip sets it. */
+  freeOnly?: boolean;
 }): ModelPickerRow[] {
   const query = search.toLowerCase().trim();
-  const filtered = models.filter(model => !query || searchableText(model).includes(query));
+  const filtered = models.filter(
+    model =>
+      (!query || searchableText(model).includes(query)) && (!freeOnly || isFreeModel(model))
+  );
 
   const favorites = filtered.filter(model => isFavoriteOption(model, favoriteIds));
   const rest = filtered.filter(model => !isFavoriteOption(model, favoriteIds));
@@ -186,17 +212,22 @@ export function buildModelPickerRows({
  */
 export function providerSectionCounts({
   favoriteIds,
+  freeOnly = false,
   models,
   search,
 }: {
   models: SessionModelOption[];
   search: string;
   favoriteIds: Set<string>;
+  freeOnly?: boolean;
 }): Map<string, number> {
   const query = search.toLowerCase().trim();
   const counts = new Map<string, number>();
   for (const model of models) {
     if (query && !searchableText(model).includes(query)) {
+      continue;
+    }
+    if (freeOnly && !isFreeModel(model)) {
       continue;
     }
     if (isFavoriteOption(model, favoriteIds)) {

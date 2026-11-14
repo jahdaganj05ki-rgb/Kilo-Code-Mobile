@@ -2715,6 +2715,8 @@
       "dismissed": "Forslag avvist"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Velg modell",
       "noModelsDescription": "Det er ingen modeller å velge mellom.",
       "favorites": "Favoritter"

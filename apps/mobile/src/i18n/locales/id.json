@@ -2173,6 +2173,8 @@
       "dismissed": "Saran ditutup"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Pilih model",
       "noModelsDescription": "Tidak ada model yang dapat dipilih.",
       "favorites": "Favorit"

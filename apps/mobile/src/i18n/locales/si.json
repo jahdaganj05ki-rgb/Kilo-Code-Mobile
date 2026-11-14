@@ -2715,6 +2715,8 @@
       "dismissed": "යෝජනාව ඉවත් කරන ලදී"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "මාදිලිය තෝරන්න",
       "noModelsDescription": "තේරීමට මාදිලි නොමැත.",
       "favorites": "ප්‍රියතමයන්"

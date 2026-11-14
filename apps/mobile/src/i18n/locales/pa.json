@@ -2715,6 +2715,8 @@
       "dismissed": "ਸੁਝਾਅ ਖਾਰਜ ਹੋ ਗਿਆ"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "ਮਾਡਲ ਚੁਣੋ",
       "favorites": "ਪਸੰਦੀਦਾ",
       "noModelsDescription": "ਚੁਣਨ ਲਈ ਕੋਈ ਮਾਡਲ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।"

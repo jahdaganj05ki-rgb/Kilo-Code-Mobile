@@ -26,10 +26,13 @@ export function useModelPickerRows({
   favoriteIds,
   models,
   search,
+  freeOnly = false,
 }: {
   favoriteIds: Set<string>;
   models: SessionModelOption[] | undefined;
   search: string;
+  /** Keep only the models that cost nothing; the free chip sets it. */
+  freeOnly?: boolean;
 }): ModelPickerRows {
   const [collapsedProviders, setCollapsedProviders] = useState<ReadonlySet<string>>(
     () => new Set<string>()
@@ -42,13 +45,14 @@ export function useModelPickerRows({
         search,
         favoriteIds,
         collapsedProviders,
+        freeOnly,
       }),
-    [collapsedProviders, favoriteIds, models, search]
+    [collapsedProviders, favoriteIds, models, search, freeOnly]
   );
 
   const providerCounts = useMemo(
-    () => providerSectionCounts({ models: models ?? [], search, favoriteIds }),
-    [favoriteIds, models, search]
+    () => providerSectionCounts({ models: models ?? [], search, favoriteIds, freeOnly }),
+    [favoriteIds, models, search, freeOnly]
   );
 
   // Folding a section is neither a commit nor a selection: it changes no state

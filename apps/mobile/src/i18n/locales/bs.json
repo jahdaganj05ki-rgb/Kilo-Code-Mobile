@@ -2761,6 +2761,8 @@
       "dismissed": "Prijedlog odbačen"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Odabir modela",
       "favorites": "Omiljeni",
       "noModelsDescription": "Nijedan model nije dostupan za odabir."

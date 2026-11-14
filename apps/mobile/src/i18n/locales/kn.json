@@ -2715,6 +2715,8 @@
       "dismissed": "ಸಲಹೆಯನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "ಮಾದರಿ ಆಯ್ಕೆಮಾಡಿ",
       "noModelsDescription": "ಆಯ್ಕೆ ಮಾಡಲು ಯಾವುದೇ ಮಾದರಿಗಳು ಲಭ್ಯವಿಲ್ಲ.",
       "favorites": "ಮೆಚ್ಚಿನವುಗಳು"

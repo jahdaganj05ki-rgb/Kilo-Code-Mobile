@@ -2715,6 +2715,8 @@
       "dismissed": "Nesorina ny soso-kevitra"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Safidio ny modely",
       "noModelsDescription": "Tsy misy modely azo fidina.",
       "favorites": "Ankafizinao"

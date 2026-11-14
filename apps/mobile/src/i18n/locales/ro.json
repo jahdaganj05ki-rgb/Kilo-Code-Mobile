@@ -2761,6 +2761,8 @@
       "dismissed": "Sugestie respinsă"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Model",
       "favorites": "Favorite",
       "noModelsDescription": "Nu este disponibil niciun model."

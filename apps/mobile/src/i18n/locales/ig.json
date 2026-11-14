@@ -2715,6 +2715,8 @@
       "dismissed": "Ewepụrụ aro"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Họrọ ihe nlereanya",
       "noModelsDescription": "Enweghị ihe nlereanya dị ịhọrọ.",
       "favorites": "Ihe kacha amasị gị"

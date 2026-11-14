@@ -2715,6 +2715,8 @@
       "dismissed": "የተጠቆመው ሐሳብ ተወግዷል"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "የሞዴል ምርጫ",
       "favorites": "ተወዳጆች",
       "noModelsDescription": "ለመምረጥ ምንም ሞዴሎች የሉም።"

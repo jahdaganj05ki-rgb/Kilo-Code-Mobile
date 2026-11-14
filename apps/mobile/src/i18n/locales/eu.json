@@ -2715,6 +2715,8 @@
       "dismissed": "Iradokizuna baztertuta"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Hautatu modeloa",
       "noModelsDescription": "Ez dago hautatzeko moduko modelorik.",
       "favorites": "Gogokoak"

@@ -2715,6 +2715,8 @@
       "dismissed": "Isiphakamiso sichithiwe"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Khetha imodeli",
       "noModelsDescription": "Awekho amamodeli ongawakhetha.",
       "favorites": "Okuthandwayo"

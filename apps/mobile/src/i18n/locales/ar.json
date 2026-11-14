@@ -2265,6 +2265,8 @@
       "dismissed": "تم تجاهل الاقتراح"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "اختيار النموذج",
       "favorites": "المفضلة",
       "noModelsDescription": "لا توجد نماذج متاحة للاختيار."

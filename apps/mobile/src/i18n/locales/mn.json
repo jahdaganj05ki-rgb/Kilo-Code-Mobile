@@ -2715,6 +2715,8 @@
       "dismissed": "Санал хаагдлаа"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Загвар сонгох",
       "noModelsDescription": "Сонгох боломжтой загвар алга.",
       "favorites": "Дуртай загварууд"

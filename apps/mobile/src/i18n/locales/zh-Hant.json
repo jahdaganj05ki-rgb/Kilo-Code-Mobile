@@ -2173,6 +2173,8 @@
       "dismissed": "建議已關閉"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "選取模型",
       "noModelsDescription": "沒有可選取的模型。",
       "favorites": "我的最愛"

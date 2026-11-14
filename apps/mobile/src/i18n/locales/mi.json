@@ -2715,6 +2715,8 @@
       "dismissed": "Kua whakakorea te huatau"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Kōwhiria te tauira",
       "noModelsDescription": "Kāore he tauira e wātea ana hei kōwhiri.",
       "favorites": "Ngā makau"

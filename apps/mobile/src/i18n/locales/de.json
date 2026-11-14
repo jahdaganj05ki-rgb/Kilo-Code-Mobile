@@ -2173,6 +2173,8 @@
       "dismissed": "Vorschlag verworfen"
     },
     "modelPicker": {
+      "noFreeModels": "Keine kostenlosen Modelle",
+      "noFreeModelsDescription": "Schalte den Kostenlos-Filter aus, um alle Modelle zu sehen.",
       "title": "Modell wählen",
       "noModelsDescription": "Es stehen keine Modelle zur Auswahl.",
       "favorites": "Favoriten"

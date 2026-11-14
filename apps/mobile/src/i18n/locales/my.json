@@ -2715,6 +2715,8 @@
       "dismissed": "အကြံပြုချက်ကို ပယ်ပြီး"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "မော်ဒယ်ရွေးချယ်ခြင်း",
       "noModelsDescription": "ရွေးချယ်ရန် မော်ဒယ်များ မရှိပါ။",
       "favorites": "စိတ်ကြိုက်များ"

@@ -2715,6 +2715,8 @@
       "dismissed": "An watsar da shawara"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Zaɓi samfuri",
       "noModelsDescription": "Babu samfuran da za a zaɓa.",
       "favorites": "Waɗanda ka fi so"

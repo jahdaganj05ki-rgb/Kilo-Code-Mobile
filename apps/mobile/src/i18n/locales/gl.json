@@ -2715,6 +2715,8 @@
       "dismissed": "Suxestión desbotada"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Seleccionar modelo",
       "noModelsDescription": "Non hai modelos dispoñibles para seleccionar.",
       "favorites": "Favoritos"

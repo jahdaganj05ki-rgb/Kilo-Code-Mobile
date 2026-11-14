@@ -2715,6 +2715,8 @@
       "dismissed": "Inalis ang mungkahi"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Pumili ng modelo",
       "noModelsDescription": "Walang modelong mapipili.",
       "favorites": "Mga paborito"

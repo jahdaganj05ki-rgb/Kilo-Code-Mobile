@@ -2715,6 +2715,8 @@
       "dismissed": "Javaslat elutasítva"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Modell kiválasztása",
       "noModelsDescription": "Nincs kiválasztható modell.",
       "favorites": "Kedvencek"

@@ -2715,6 +2715,8 @@
       "dismissed": "A ti yọ àbá kúrò"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Yan àwòṣe",
       "noModelsDescription": "Kò sí àwòṣe tí o lè yàn.",
       "favorites": "Àwọn àyànfẹ́"

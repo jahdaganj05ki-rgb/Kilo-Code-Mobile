@@ -2173,6 +2173,8 @@
       "dismissed": "提案を閉じました"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "モデルの選択",
       "noModelsDescription": "選択できるモデルはありません。",
       "favorites": "お気に入り"

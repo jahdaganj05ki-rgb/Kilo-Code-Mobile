@@ -2899,6 +2899,8 @@
       "dismissed": "Gwrthodwyd yr awgrym"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Dewis model",
       "noModelsDescription": "Does dim modelau ar gael i'w dewis.",
       "favorites": "Ffefrynnau"

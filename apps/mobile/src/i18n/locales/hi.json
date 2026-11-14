@@ -2122,6 +2122,8 @@
       "project": "प्रोजेक्ट"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "मॉडल चुनें",
       "noModelsDescription": "चुनने के लिए कोई मॉडल उपलब्ध नहीं है।",
       "favorites": "पसंदीदा"

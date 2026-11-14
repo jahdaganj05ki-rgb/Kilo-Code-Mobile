@@ -2219,6 +2219,8 @@
       "dismissed": "Предложение отклонено"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Выбор модели",
       "favorites": "Избранное",
       "noModelsDescription": "Нет доступных моделей."

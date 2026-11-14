@@ -2715,6 +2715,8 @@
       "dismissed": "پیشنهاد رد شد"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "انتخاب مدل",
       "noModelsDescription": "هیچ مدلی برای انتخاب در دسترس نیست.",
       "favorites": "موارد دلخواه"

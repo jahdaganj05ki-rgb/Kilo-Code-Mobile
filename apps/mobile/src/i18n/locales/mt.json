@@ -2853,6 +2853,8 @@
       "dismissed": "Is-suġġeriment twarrab"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Agħżel il-mudell",
       "noModelsDescription": "M'hemm l-ebda mudell disponibbli biex tagħżel.",
       "favorites": "Favoriti"

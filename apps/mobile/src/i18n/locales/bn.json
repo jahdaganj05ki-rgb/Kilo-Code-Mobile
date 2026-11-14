@@ -2715,6 +2715,8 @@
       "dismissed": "পরামর্শ সরানো হয়েছে"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "মডেল নির্বাচন",
       "favorites": "পছন্দের তালিকা",
       "noModelsDescription": "বেছে নেওয়ার মতো কোনো মডেল নেই।"

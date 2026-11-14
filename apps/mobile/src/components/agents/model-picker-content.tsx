@@ -24,6 +24,7 @@ import { commitModelPickerSelection, resolveModelPickerSelection } from '@/lib/p
 import { dismissSearchPickerKeyboard, SEARCHABLE_PICKER_LIST_PROPS } from '@/lib/picker-list';
 import { parseParam } from '@/lib/route-params';
 import { modelPickerSlot, UNFENCED_ROUTE_KEY, useRouteRegistry } from '@/lib/route-registry';
+import { cn } from '@/lib/utils';
 
 // The picker sheet renders its own scroll container (`scrollable={false}`), so
 // the list fills the sheet's body.
@@ -66,10 +67,14 @@ export function ModelPickerContent() {
   const acceptsVariant = bridge?.acceptsVariant ?? true;
   // The rows and the provider sections folded shut. The sheet itself owns only
   // the search field and the selection.
+  // The free chip narrows the picker to models that cost nothing. It is filter
+  // state, not preference: the sheet opens unfiltered, like the search field.
+  const [freeOnly, setFreeOnly] = useState(false);
   const { providerCounts, resetCollapsedProviders, rows, toggleProvider } = useModelPickerRows({
     favoriteIds,
     models: bridge?.options,
     search: deferredSearch,
+    freeOnly,
   });
 
   useFocusEffect(
@@ -86,6 +91,7 @@ export function ModelPickerContent() {
       setSelectedModel(nextModel);
       setSelectedVariant(nextVariant);
       setSearch('');
+      setFreeOnly(false);
       resetCollapsedProviders();
       searchInputRef.current?.clear();
 
@@ -296,6 +302,29 @@ export function ModelPickerContent() {
               </Pressable>
             ) : null}
           </View>
+          <View className="mx-4 mb-3 flex-row items-center gap-2">
+            <Pressable
+              onPress={() => {
+                setFreeOnly(current => !current);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={t('models.free')}
+              accessibilityState={{ selected: freeOnly }}
+              className={cn(
+                'rounded-full border px-3 py-1 active:opacity-70',
+                freeOnly ? 'border-primary bg-primary/10' : 'border-border'
+              )}
+            >
+              <Text
+                className={cn(
+                  'text-xs font-medium',
+                  freeOnly ? 'text-primary' : 'text-muted-foreground'
+                )}
+              >
+                {t('models.free')}
+              </Text>
+            </Pressable>
+          </View>
           {favoritesError ? (
             <View className="mx-4 mb-3 flex-row items-center gap-1.5">
               <AlertCircle size={14} color={colors.destructive} />
@@ -311,12 +340,16 @@ export function ModelPickerContent() {
           title={
             deferredSearch.trim()
               ? t('agentChat.repoPicker.noMatches')
-              : t('common.noModelsAvailable')
+              : freeOnly
+                ? t('agentChat.modelPicker.noFreeModels')
+                : t('common.noModelsAvailable')
           }
           description={
             deferredSearch.trim()
               ? t('agents.sessionList.tryDifferentSearch')
-              : t('agentChat.modelPicker.noModelsDescription')
+              : freeOnly
+                ? t('agentChat.modelPicker.noFreeModelsDescription')
+                : t('agentChat.modelPicker.noModelsDescription')
           }
           action={
             // The in-field X is one way back; the no-matches body offers the

@@ -2173,6 +2173,8 @@
       "dismissed": "已忽略建议"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "选择模型",
       "noModelsDescription": "没有可选择的模型。",
       "favorites": "收藏"

@@ -2196,6 +2196,8 @@
       "dismissed": "ההצעה נסגרה"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "בחירת מודל",
       "noModelsDescription": "אין מודלים זמינים לבחירה.",
       "favorites": "מועדפים"

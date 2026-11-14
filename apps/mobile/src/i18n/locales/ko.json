@@ -2173,6 +2173,8 @@
       "dismissed": "제안 닫힘"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "모델 선택",
       "noModelsDescription": "선택할 수 있는 모델이 없습니다.",
       "favorites": "즐겨찾기"

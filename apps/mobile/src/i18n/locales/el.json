@@ -2715,6 +2715,8 @@
       "dismissed": "Η πρόταση απορρίφθηκε"
     },
     "modelPicker": {
+      "noFreeModels": "No free models",
+      "noFreeModelsDescription": "Turn the free filter off to see every model.",
       "title": "Επιλογή μοντέλου",
       "noModelsDescription": "Δεν υπάρχουν διαθέσιμα μοντέλα για επιλογή.",
       "favorites": "Αγαπημένα"
