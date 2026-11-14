@@ -86,6 +86,8 @@ export const REMOTE_MCP_SERVERS_KEY = 'remote-mcp-servers';
 export const REMOTE_MCP_OAUTH_KEY = 'remote-mcp-oauth';
 /** Account-scoped remote Quick Chat profiles, including provider credentials. */
 export const CHAT_BACKENDS_KEY = 'chat-backends';
+/** Per-provider account switch policy and the account it starts from. */
+export const PROVIDER_POLICIES_KEY = 'chat-provider-policies';
 /** Provider platforms whose new-session "Connect <provider>" CTA the user collapsed. */
 export const COLLAPSED_CONNECT_CTAS_KEY = 'collapsed-connect-ctas';
 /** Master switch for the glanceable Active Agents surfaces (widgets, Live Activity,

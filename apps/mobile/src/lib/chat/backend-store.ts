@@ -8,6 +8,7 @@ import { createSecureStorePreference } from '@/lib/hooks/secure-store-preference
 import { CHAT_BACKENDS_KEY } from '@/lib/storage-keys';
 
 import { BackendUrlError, hasControlCharacters, normalizeBackendUrl } from './backend-url';
+import { CHAT_PROVIDER_IDS, type ChatProviderId } from './providers';
 
 export type BackendModel = {
   id: string;
@@ -31,6 +32,17 @@ export type StoredChatBackend = {
   headers: Record<string, string>;
   models: BackendModel[];
   allowLocalHttp: boolean;
+  /**
+   * The provider this backend is an account of. Absent for a backend the user
+   * added as a one-off endpoint: that one groups under its own name.
+   */
+  provider?: ChatProviderId;
+  /**
+   * A switched-off account keeps its key and models but offers none of them, so
+   * the picker never routes a request to a key the user parked. Absent reads as
+   * enabled, which is what every stored account predates this flag.
+   */
+  enabled?: boolean;
 };
 export type ChatBackendDraft = Omit<StoredChatBackend, 'id' | 'revision'>;
 export type BackendInputProblem =
@@ -125,6 +137,8 @@ const draftSchema = z
       .enum(['max_completion_tokens', 'max_tokens'])
       .default('max_completion_tokens'),
     apiKey: z.string().refine(value => /^[\u0020-\u007E\u0080-\u00FF]*$/.test(value)),
+    provider: z.enum(CHAT_PROVIDER_IDS).optional(),
+    enabled: z.boolean().optional(),
     headers: backendHeadersSchema,
     models: z
       .array(backendModelSchema)
@@ -252,7 +266,13 @@ export function updateChatBackend(id: string, draft: ChatBackendDraft): StoredCh
     throw new BackendInputError('staleBackend');
   }
   const backend = freezeBackend({
-    ...validateChatBackendDraft(draft),
+    // A caller that knows nothing about provider accounts — the general backend
+    // form — must not strip an account of the provider it belongs to.
+    ...validateChatBackendDraft({
+      ...draft,
+      provider: draft.provider ?? previous.provider,
+      enabled: draft.enabled ?? previous.enabled,
+    }),
     id,
     revision: previous.revision + 1,
   });

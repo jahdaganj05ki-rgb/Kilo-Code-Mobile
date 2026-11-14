@@ -2,25 +2,84 @@ import { type TFunction } from 'i18next';
 
 import { type SessionModelOption } from '@/lib/hooks/use-session-model-options';
 
-import { type StoredChatBackend } from './backend-store';
-import { backendTargetId, decodeBackendTarget, decodeLocalTarget } from './backend-target';
+import { type StoredChatBackend, type BackendModel } from './backend-store';
+import {
+  backendTargetId,
+  decodeBackendTarget,
+  decodeLocalTarget,
+  providerTargetId,
+} from './backend-target';
 import { BACKEND_EFFORT_VARIANTS } from './effort';
 import { type LocalModelStatus } from './local-models';
+import { CHAT_PROVIDER_IDS, chatProvider } from './providers';
 
 export function backendModelOptions(backends: readonly StoredChatBackend[]): SessionModelOption[] {
+  return [...accountModelOptions(backends), ...providerModelOptions(backends)];
+}
+
+/** A backend the user added on its own is one option per model, under its name. */
+function accountModelOptions(backends: readonly StoredChatBackend[]): SessionModelOption[] {
   return backends.flatMap(backend =>
-    backend.models.map(model => ({
-      id: backendTargetId(backend, model.id),
-      name: `${backend.name} · ${model.name}`,
-      displayId: model.id,
-      variants: model.reasoning ? [...BACKEND_EFFORT_VARIANTS] : [],
-      isPreferred: false,
-      showGatewayMetadata: false,
-      provider: { id: backend.id, name: backend.name },
-      capabilities: { tools: model.tools, images: model.images },
-      ...(model.contextWindow === undefined ? {} : { contextWindow: model.contextWindow }),
-    }))
+    backend.enabled === false || backend.provider !== undefined
+      ? []
+      : backend.models.map(model => ({
+          id: backendTargetId(backend, model.id),
+          name: `${backend.name} · ${model.name}`,
+          displayId: model.id,
+          variants: model.reasoning ? [...BACKEND_EFFORT_VARIANTS] : [],
+          isPreferred: false,
+          showGatewayMetadata: false,
+          provider: { id: backend.id, name: backend.name },
+          capabilities: { tools: model.tools, images: model.images },
+          ...(model.contextWindow === undefined ? {} : { contextWindow: model.contextWindow }),
+        }))
   );
+}
+
+/**
+ * A provider's models are one list, not one list per account: two accounts of
+ * OpenRouter offer the same catalogue, and the picker must not print each model
+ * twice. The union keeps every model any enabled account offers, and the target
+ * names the provider rather than the account, so the switch policy — not the
+ * picker — decides which key answers.
+ */
+function providerModelOptions(backends: readonly StoredChatBackend[]): SessionModelOption[] {
+  const modelsByProvider = new Map<string, Map<string, BackendModel>>();
+  for (const backend of backends) {
+    if (backend.enabled === false || backend.provider === undefined) {
+      continue;
+    }
+    const models = modelsByProvider.get(backend.provider) ?? new Map<string, BackendModel>();
+    for (const model of backend.models) {
+      if (!models.has(model.id)) {
+        models.set(model.id, model);
+      }
+    }
+    modelsByProvider.set(backend.provider, models);
+  }
+  const options: SessionModelOption[] = [];
+  for (const providerId of CHAT_PROVIDER_IDS) {
+    const models = modelsByProvider.get(providerId);
+    const provider = chatProvider(providerId);
+    if (models === undefined || provider === undefined) {
+      continue;
+    }
+    for (const model of models.values()) {
+      options.push({
+        id: providerTargetId(providerId, model.id),
+        // The section header names the provider, so the row names the model.
+        name: model.name,
+        displayId: model.id,
+        variants: model.reasoning ? [...BACKEND_EFFORT_VARIANTS] : [],
+        isPreferred: false,
+        showGatewayMetadata: false,
+        provider: { id: provider.id, name: provider.name },
+        capabilities: { tools: model.tools, images: model.images },
+        ...(model.contextWindow === undefined ? {} : { contextWindow: model.contextWindow }),
+      });
+    }
+  }
+  return options;
 }
 
 /** An on-device model is offered only while its provider says it is available. */
@@ -72,7 +131,10 @@ export function defaultChatModel(input: {
     return undefined;
   }
   const kilo = options.filter(
-    option => decodeLocalTarget(option.id) === null && decodeBackendTarget(option.id) === null
+    option =>
+      decodeLocalTarget(option.id) === null &&
+      decodeBackendTarget(option.id) === null &&
+      !option.id.startsWith('provider:')
   );
   return (
     kilo.find(option => option.isPreferred)?.id ??
@@ -87,6 +149,11 @@ function backendIdentity(targetId: string): string {
   const local = decodeLocalTarget(targetId);
   if (local !== null) {
     return `local:${local.provider}:${local.modelId}`;
+  }
+  // A provider target answers with one of the provider's keys, and which one may
+  // change between two messages: it is its own identity, not the gateway's.
+  if (targetId.startsWith('provider:')) {
+    return targetId;
   }
   const backend = decodeBackendTarget(targetId);
   return backend === null ? 'kilo' : `backend:${backend.backendId}:${backend.revision}`;

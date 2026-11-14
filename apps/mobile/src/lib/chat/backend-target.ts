@@ -6,8 +6,15 @@ import { i18n } from '@/i18n';
 
 import { type BackendModel, type StoredChatBackend } from './backend-store';
 import { LocalModelError } from './local-model-error';
+import { advanceAfterFailure, providerAccountsForModel } from './provider-policy';
+import { type ChatProviderId, isChatProviderId } from './providers';
 
 const PREFIX = 'backend:';
+/**
+ * A provider target names a provider and a model, not one account: which account
+ * answers is decided per request by that provider's switch policy.
+ */
+const PROVIDER_PREFIX = 'provider:';
 const LOCAL_PREFIX = 'local:';
 const GGUF_PREFIX = 'gguf:';
 /** A system provider serves one model, and the OS chooses its version. */
@@ -97,6 +104,7 @@ function paymentRequired(error: unknown, model: string | undefined): boolean {
  * settle in this app from one they can only settle elsewhere.
  */
 export function backendFailureKey(error: unknown, model?: string): string {
+  noteProviderFailure(model);
   // The routed model client reports target and local failures as a ModelError cause.
   for (const failure of [error, error instanceof ModelError ? error.cause : undefined]) {
     if (failure instanceof BackendTargetError) {
@@ -146,7 +154,7 @@ export function chatTargetKind(id: string): ResolvedChatTarget['kind'] {
   if (id.startsWith(LOCAL_PREFIX)) {
     return 'local';
   }
-  return id.startsWith(PREFIX) ? 'custom' : 'kilo';
+  return id.startsWith(PREFIX) || id.startsWith(PROVIDER_PREFIX) ? 'custom' : 'kilo';
 }
 
 /** `local:apple`, `local:android`, or `local:gguf:<encodeURIComponent(fileId)>`. */
@@ -188,6 +196,70 @@ export function decodeLocalTarget(id: string): LocalTarget | null {
 /** The SDK persists this opaque identity in its existing model field. */
 export function backendTargetId(backend: StoredChatBackend, modelId: string): string {
   return `${PREFIX}${encodeURIComponent(backend.id)}:${backend.revision}:${encodeURIComponent(modelId)}`;
+}
+
+type ProviderTarget = { readonly providerId: ChatProviderId; readonly modelId: string };
+
+/** A provider account's model, answered by whichever account the policy picks. */
+export function providerTargetId(providerId: ChatProviderId, modelId: string): string {
+  return `${PROVIDER_PREFIX}${providerId}:${encodeURIComponent(modelId)}`;
+}
+
+export function decodeProviderTarget(id: string): ProviderTarget | null {
+  if (!id.startsWith(PROVIDER_PREFIX)) {
+    return null;
+  }
+  const rest = id.slice(PROVIDER_PREFIX.length);
+  const separator = rest.indexOf(':');
+  if (separator <= 0) {
+    throw new BackendTargetError('invalidTarget');
+  }
+  const providerId = rest.slice(0, separator);
+  const encodedModelId = rest.slice(separator + 1);
+  if (!isChatProviderId(providerId) || encodedModelId === '') {
+    throw new BackendTargetError('invalidTarget');
+  }
+  try {
+    const modelId = decodeURIComponent(encodedModelId);
+    // One spelling per model, so one model is exactly one target.
+    if (modelId === '' || encodeURIComponent(modelId) !== encodedModelId) {
+      throw new Error('Invalid target');
+    }
+    return { providerId, modelId };
+  } catch {
+    throw new BackendTargetError('invalidTarget');
+  }
+}
+
+/**
+ * An `on-error` provider moves off the account whose request just failed. The
+ * call is a no-op for every other policy and for every other target.
+ */
+function noteProviderFailure(targetId: string | undefined): void {
+  if (targetId === undefined) {
+    return;
+  }
+  try {
+    const target = decodeProviderTarget(targetId);
+    if (target !== null) {
+      advanceAfterFailure(target.providerId, target.modelId);
+    }
+  } catch {
+    // A malformed target is not a provider failure; the caller's copy reports it.
+  }
+}
+
+/** A provider target answers from the account its policy chose. */
+function resolveProviderTarget(target: ProviderTarget): ResolvedChatTarget {
+  const [backend] = providerAccountsForModel(target.providerId, target.modelId);
+  if (backend === undefined) {
+    throw new BackendTargetError('missingModel');
+  }
+  const model = backend.models.find(one => one.id === target.modelId);
+  if (model === undefined) {
+    throw new BackendTargetError('missingModel');
+  }
+  return { kind: 'custom', backend, model, modelId: model.id };
 }
 
 export function decodeBackendTarget(id: string): BackendTarget | null {
@@ -234,7 +306,8 @@ export function resolveChatTarget(
   }
   const target = decodeBackendTarget(id);
   if (target === null) {
-    return { kind: 'kilo', modelId: id };
+    const providerTarget = decodeProviderTarget(id);
+    return providerTarget === null ? { kind: 'kilo', modelId: id } : resolveProviderTarget(providerTarget);
   }
   const backend = backends.find(one => one.id === target.backendId);
   if (backend === undefined) {

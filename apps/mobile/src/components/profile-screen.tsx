@@ -9,6 +9,7 @@ import {
   Building2,
   GitMerge,
   GitPullRequest,
+  Cpu,
   KeyRound,
   LineChart,
   Lock,
@@ -307,6 +308,18 @@ export function ProfileScreen() {
               schema, target, cron expression and signing secret. The row is the
               hand-off, and it opens the page for the scope in view (personal or
               the selected organization) so the browser lands where the app was. */}
+          {/* Provider accounts sit with the other per-user surfaces the app
+              owns: they are keys this device holds, not an agent. */}
+          <ConfigureRow
+            icon={Cpu}
+            title={t('profile.providers.title')}
+            subtitle={t('profile.providers.rowSubtitle')}
+            hue="honey"
+            className="rounded-lg bg-secondary px-3"
+            onPress={() => {
+              router.push('/(app)/(tabs)/(3_profile)/providers' as Href);
+            }}
+          />
           <ConfigureRow
             icon={Workflow}
             title={t('cloudAgent.triggers.title')}
