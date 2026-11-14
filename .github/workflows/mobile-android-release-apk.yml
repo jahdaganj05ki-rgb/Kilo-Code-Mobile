@@ -87,6 +87,16 @@ jobs:
       - name: Typecheck the app
         run: pnpm --filter kilo-app run typecheck
 
+      # The same lint and catalogue checks the upstream kilo-app suite runs,
+      # folded into this job because that suite's workflow is disabled here.
+      # Lint reads the app's oxlint config with its own plugins; the i18n check
+      # proves every catalog carries the same keys and no copy was left behind.
+      - name: Lint the app
+        run: pnpm --filter kilo-app run lint
+
+      - name: Check i18n catalogs and leftover copy
+        run: pnpm --filter kilo-app run check:i18n
+
       - name: Expo prebuild
         run: CI=1 pnpm --filter kilo-app exec expo prebuild --platform android
 
