@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
  * file is already at the lint line budget, and this is the block that grows every
  * time a filter is added.
  */
-export function ModelPickerSearchHeader({
+export function ModelPickerHeader({
   error,
   freeOnly,
   inputRef,
