@@ -143,7 +143,7 @@ export function PreferencesScreen() {
             accessibilityLabel={t('preferences.buildMode')}
             options={[
               { value: 'actions', label: t('preferences.buildModeActions') },
-              { value: 'local', label: t('preferences.buildModeLocal') },
+              { value: 'local', label: t('profiles.mcp.localType') },
             ]}
             value={buildMode}
             onChange={setBuildMode}

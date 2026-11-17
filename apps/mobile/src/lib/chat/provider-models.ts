@@ -52,6 +52,19 @@ function toModel(entry: z.infer<typeof modelSchema>): BackendModel {
 }
 
 /**
+ * A body the provider sent that is not JSON, or not the catalogue it claims, is
+ * the same as no answer. The schema is the boundary, so nothing unparsed leaves
+ * this function.
+ */
+function parseBody<T>(text: string, schema: z.ZodType<T>): T {
+  try {
+    return schema.parse(JSON.parse(text));
+  } catch {
+    throw new ProviderModelsError('unavailable');
+  }
+}
+
+/**
  * Reads the provider's catalogue with the account's own key.
  *
  * The call goes through `remoteChatGet`, so it leaves the app without cookies,
@@ -74,24 +87,14 @@ export async function fetchProviderModels(input: {
   if (!response.ok) {
     throw new ProviderModelsError('unavailable');
   }
-  let body: unknown;
-  try {
-    body = JSON.parse(await response.text());
-  } catch {
-    throw new ProviderModelsError('unavailable');
-  }
-  const parsed = responseSchema.safeParse(body);
-  if (!parsed.success) {
-    throw new ProviderModelsError('unavailable');
-  }
+  const catalog = parseBody(await response.text(), responseSchema);
   const seen = new Set<string>();
   const models: BackendModel[] = [];
-  for (const entry of parsed.data.data) {
-    if (seen.has(entry.id)) {
-      continue;
+  for (const entry of catalog.data) {
+    if (!seen.has(entry.id)) {
+      seen.add(entry.id);
+      models.push(toModel(entry));
     }
-    seen.add(entry.id);
-    models.push(toModel(entry));
     if (models.length === MAX_MODELS) {
       break;
     }

@@ -70,7 +70,7 @@ export function ModelPickerProviderHeader({
       accessibilityRole="button"
       // The section's own name; the state is what tells a screen reader whether
       // the press opens or closes it.
-      accessibilityLabel={count === undefined ? title : `${title} (${count})`}
+      accessibilityLabel={title}
       accessibilityState={{ expanded }}
       hitSlop={{ top: 9, bottom: 9 }}
       className={cn(SURFACE_CLASS, 'justify-between active:opacity-70')}

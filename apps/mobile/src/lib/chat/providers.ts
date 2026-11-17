@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * The providers whose accounts the app manages itself.
  *
@@ -18,7 +20,7 @@ export type ChatProvider = Readonly<{
   baseUrl: string;
 }>;
 
-export const CHAT_PROVIDERS: Readonly<Record<ChatProviderId, ChatProvider>> = {
+export const CHAT_PROVIDERS = {
   'nvidia-nim': {
     id: 'nvidia-nim',
     name: 'NVIDIA NIM',
@@ -29,12 +31,13 @@ export const CHAT_PROVIDERS: Readonly<Record<ChatProviderId, ChatProvider>> = {
     name: 'OpenRouter',
     baseUrl: 'https://openrouter.ai/api/v1',
   },
-};
+} satisfies Record<ChatProviderId, ChatProvider>;
 
-const KNOWN_PROVIDERS = new Set<string>(CHAT_PROVIDER_IDS);
+/** A stored id is untrusted input, so it is parsed rather than inspected. */
+const providerIdSchema = z.enum(CHAT_PROVIDER_IDS);
 
 export function isChatProviderId(value: unknown): value is ChatProviderId {
-  return typeof value === 'string' && KNOWN_PROVIDERS.has(value);
+  return providerIdSchema.safeParse(value).success;
 }
 
 export function chatProvider(id: string): ChatProvider | undefined {

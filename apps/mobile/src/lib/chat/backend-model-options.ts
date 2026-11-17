@@ -2,7 +2,7 @@ import { type TFunction } from 'i18next';
 
 import { type SessionModelOption } from '@/lib/hooks/use-session-model-options';
 
-import { type StoredChatBackend, type BackendModel } from './backend-store';
+import { type BackendModel, type StoredChatBackend } from './backend-store';
 import {
   backendTargetId,
   decodeBackendTarget,
@@ -47,16 +47,15 @@ function accountModelOptions(backends: readonly StoredChatBackend[]): SessionMod
 function providerModelOptions(backends: readonly StoredChatBackend[]): SessionModelOption[] {
   const modelsByProvider = new Map<string, Map<string, BackendModel>>();
   for (const backend of backends) {
-    if (backend.enabled === false || backend.provider === undefined) {
-      continue;
-    }
-    const models = modelsByProvider.get(backend.provider) ?? new Map<string, BackendModel>();
-    for (const model of backend.models) {
-      if (!models.has(model.id)) {
-        models.set(model.id, model);
+    if (backend.enabled !== false && backend.provider !== undefined) {
+      const models = modelsByProvider.get(backend.provider) ?? new Map<string, BackendModel>();
+      for (const model of backend.models) {
+        if (!models.has(model.id)) {
+          models.set(model.id, model);
+        }
       }
+      modelsByProvider.set(backend.provider, models);
     }
-    modelsByProvider.set(backend.provider, models);
   }
   const options: SessionModelOption[] = [];
   for (const providerId of CHAT_PROVIDER_IDS) {
@@ -69,7 +68,7 @@ function providerModelOptions(backends: readonly StoredChatBackend[]): SessionMo
     const models: readonly BackendModel[] =
       listed ?? [...(modelsByProvider.get(providerId)?.values() ?? [])];
     if (provider === undefined) {
-      continue;
+      return options;
     }
     for (const model of models) {
       options.push({

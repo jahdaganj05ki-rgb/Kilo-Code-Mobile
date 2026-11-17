@@ -188,6 +188,9 @@ const WORDED_COUNTS = new Set([
  * is translated or the key is deleted.
  */
 const ENGLISH_IDENTICAL_ALLOWLIST = new Set([
+  // A sample model id and a workflow's brand name read the same everywhere.
+  'profile.providers.modelsPlaceholder',
+  'preferences.buildModeActions',
   'profile.providerAnaconda',
   'profile.providerApple',
   'profile.providerDiscord',

@@ -77,6 +77,7 @@ import { useRestoreErrorHold } from '@/lib/hooks/use-restore-error-hold';
 import { useScreenTracking } from '@/lib/hooks/use-screen-tracking';
 import { useSystemSearchOpenListener } from '@/lib/hooks/use-system-search-open-listener';
 import { preloadBuildModePreference } from '@/lib/hooks/use-build-mode-preference';
+import { preloadProviderCatalogs } from '@/lib/chat/provider-catalog';
 import { preloadHideBalancePreference } from '@/lib/hooks/use-hide-balance-preference';
 import { useNavigationTheme } from '@/lib/hooks/use-navigation-theme';
 import {
@@ -224,6 +225,7 @@ watchProviderCatalogs();
 preloadThemePreference();
 preloadHideBalancePreference();
 preloadBuildModePreference();
+preloadProviderCatalogs();
 preloadLanguagePreference();
 preloadStartupFonts();
 

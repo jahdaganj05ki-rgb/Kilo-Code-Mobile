@@ -185,17 +185,16 @@ export function buildModelPickerRows({
         ? { key: group.key, title: group.title, type: 'provider-header', expanded }
         : { key: group.key, title: group.title, type: 'header' }
     );
-    if (!expanded) {
-      continue;
-    }
-    for (const model of group.models) {
-      rows.push({
-        key: `model:${model.id}`,
-        model,
-        isFavorite: false,
-        showsProvider: !group.namesProvider,
-        type: 'model',
-      });
+    if (expanded) {
+      for (const model of group.models) {
+        rows.push({
+          key: `model:${model.id}`,
+          model,
+          isFavorite: false,
+          showsProvider: !group.namesProvider,
+          type: 'model',
+        });
+      }
     }
   }
 
@@ -223,21 +222,17 @@ export function providerSectionCounts({
 }): Map<string, number> {
   const query = search.toLowerCase().trim();
   const counts = new Map<string, number>();
-  for (const model of models) {
-    if (query && !searchableText(model).includes(query)) {
-      continue;
-    }
-    if (freeOnly && !isFreeModel(model)) {
-      continue;
-    }
-    if (isFavoriteOption(model, favoriteIds)) {
-      continue;
-    }
+  const counted = models.filter(
+    model =>
+      (!query || searchableText(model).includes(query)) &&
+      (!freeOnly || isFreeModel(model)) &&
+      !isFavoriteOption(model, favoriteIds)
+  );
+  for (const model of counted) {
     const group = groupForModel(model);
-    if (!group.namesProvider) {
-      continue;
+    if (group.namesProvider) {
+      counts.set(group.key, (counts.get(group.key) ?? 0) + 1);
     }
-    counts.set(group.key, (counts.get(group.key) ?? 0) + 1);
   }
   return counts;
 }

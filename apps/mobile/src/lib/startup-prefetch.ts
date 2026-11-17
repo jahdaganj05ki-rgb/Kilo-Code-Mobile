@@ -33,15 +33,23 @@ let catalogWatching = false;
  * to the foreground runs the same bounded check, which costs a comparison unless
  * the snapshot really is old enough to ask again.
  */
+async function refreshCatalogsQuietly(): Promise<void> {
+  try {
+    await refreshStaleProviderCatalogs();
+  } catch {
+    // A background refresh stays silent; the account screen reports instead.
+  }
+}
+
 export function watchProviderCatalogs(): void {
-  void refreshStaleProviderCatalogs().catch(() => undefined);
+  void refreshCatalogsQuietly();
   if (catalogWatching) {
     return;
   }
   catalogWatching = true;
   AppState.addEventListener('change', state => {
     if (state === 'active') {
-      void refreshStaleProviderCatalogs().catch(() => undefined);
+      void refreshCatalogsQuietly();
     }
   });
 }

@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next';
 import {
   BookOpenCheck,
   Building2,
+  Cpu,
   GitMerge,
   GitPullRequest,
-  Cpu,
   KeyRound,
   LineChart,
   Lock,

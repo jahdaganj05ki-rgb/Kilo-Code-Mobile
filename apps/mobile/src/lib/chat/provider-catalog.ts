@@ -11,7 +11,7 @@ import {
   waitForChatBackends,
 } from './backend-store';
 import { fetchProviderModels } from './provider-models';
-import { CHAT_PROVIDER_IDS, isChatProviderId } from './providers';
+import { CHAT_PROVIDER_IDS, type ChatProviderId, isChatProviderId } from './providers';
 
 /** Its own scope: a provider's catalogue is device config, not account data. */
 const CATALOG_SCOPE = 'provider-catalog';
@@ -57,19 +57,19 @@ function publish(next: ProviderCatalogs): void {
 }
 
 // One read at startup: the picker filters on whatever the last run learned, with
-// no network call and nothing on the critical path.
-void (async () => {
+// no network call and nothing on the critical path. It is a named function and
+// not an async IIFE: the module has to keep loading while it runs.
+async function loadStoredCatalogs(): Promise<void> {
   const loaded: Record<string, ProviderCatalog> = {};
   await Promise.all(
     CHAT_PROVIDER_IDS.map(async providerId => {
       try {
         const raw = await getItem(CATALOG_SCOPE, providerId);
-        if (raw === null) {
-          return;
-        }
-        const parsed = catalogSchema.safeParse(JSON.parse(raw));
-        if (parsed.success) {
-          loaded[providerId] = parsed.data;
+        if (raw !== null) {
+          const parsed = catalogSchema.safeParse(JSON.parse(raw));
+          if (parsed.success) {
+            loaded[providerId] = parsed.data;
+          }
         }
       } catch {
         // A cache the app cannot read is a cache it never had.
@@ -79,7 +79,12 @@ void (async () => {
   if (Object.keys(loaded).length > 0) {
     publish(loaded);
   }
-})();
+}
+
+/** Starts the startup read; the store stays empty until it lands. */
+export function preloadProviderCatalogs(): void {
+  void loadStoredCatalogs();
+}
 
 export function providerCatalog(providerId: string): ProviderCatalog | undefined {
   return isChatProviderId(providerId) ? catalogs[providerId] : undefined;
@@ -100,7 +105,15 @@ export function saveProviderCatalog(
   const catalog: ProviderCatalog = { fetchedAt: Date.now(), models };
   publish({ ...catalogs, [providerId]: catalog });
   // `isChatProviderId` narrowed the id above, so the scope/key pair is typed.
-  void setItem(CATALOG_SCOPE, providerId, JSON.stringify(catalog)).catch(() => undefined);
+  void persistCatalog(providerId, catalog);
+}
+
+async function persistCatalog(providerId: ChatProviderId, catalog: ProviderCatalog): Promise<void> {
+  try {
+    await setItem(CATALOG_SCOPE, providerId, JSON.stringify(catalog));
+  } catch {
+    // A cache the app cannot write is the cache it had before.
+  }
 }
 
 /**
@@ -160,21 +173,21 @@ export async function refreshStaleProviderCatalogs(): Promise<void> {
     return;
   }
   const accounts = listChatBackends();
-  for (const providerId of CHAT_PROVIDER_IDS) {
-    const usable = accounts.filter(
+  const stale = CHAT_PROVIDER_IDS.filter(providerId => {
+    const hasAccount = accounts.some(
       account =>
         account.provider === providerId && account.enabled !== false && account.apiKey !== ''
     );
-    if (usable.length === 0) {
-      continue;
-    }
     const snapshot = providerCatalog(providerId);
-    if (snapshot !== undefined && Date.now() - snapshot.fetchedAt < CATALOG_MAX_AGE_MS) {
-      continue;
-    }
+    return (
+      hasAccount &&
+      (snapshot === undefined || Date.now() - snapshot.fetchedAt >= CATALOG_MAX_AGE_MS)
+    );
+  });
+  for (const providerId of stale) {
     try {
       // eslint-disable-next-line no-await-in-loop -- one provider at a time, so a launch never opens both at once
-      await refreshProviderCatalog(providerId, usable);
+      await refreshProviderCatalog(providerId, accounts);
     } catch {
       // A background refresh stays silent; the account screen reports instead.
     }

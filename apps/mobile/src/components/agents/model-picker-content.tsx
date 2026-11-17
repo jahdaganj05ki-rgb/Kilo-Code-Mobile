@@ -1,18 +1,18 @@
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { selectionHaptic } from '@/lib/haptics';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AlertCircle, Info, Search, SearchX, X } from '@/components/ui/icons';
+import { Info, SearchX } from '@/components/ui/icons';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, type TextInput, View, type ViewStyle } from 'react-native';
+import { type TextInput, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
+import { ModelPickerHeader } from '@/components/agents/model-picker-header';
 import { ModelPickerSectionRow } from '@/components/agents/model-picker-section-header';
 import { ModelPickerOptionRow } from '@/components/agents/model-selector';
 import { EmptyState } from '@/components/empty-state';
 import { PickerSheet } from '@/components/picker-sheet';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
 import { useModelPickerRows } from '@/lib/hooks/use-model-picker-rows';
@@ -24,7 +24,6 @@ import { commitModelPickerSelection, resolveModelPickerSelection } from '@/lib/p
 import { dismissSearchPickerKeyboard, SEARCHABLE_PICKER_LIST_PROPS } from '@/lib/picker-list';
 import { parseParam } from '@/lib/route-params';
 import { modelPickerSlot, UNFENCED_ROUTE_KEY, useRouteRegistry } from '@/lib/route-registry';
-import { cn } from '@/lib/utils';
 
 // The picker sheet renders its own scroll container (`scrollable={false}`), so
 // the list fills the sheet's body.
@@ -247,110 +246,42 @@ export function ModelPickerContent() {
     );
   }
 
+  // The empty state answers whichever filter emptied the list, and it is
+  // written as statements because a chain of ternaries reads as one expression.
+  let emptyTitle = t('common.noModelsAvailable');
+  let emptyDescription = t('agentChat.modelPicker.noModelsDescription');
+  if (deferredSearch.trim()) {
+    emptyTitle = t('agentChat.repoPicker.noMatches');
+    emptyDescription = t('agents.sessionList.tryDifferentSearch');
+  } else if (freeOnly) {
+    emptyTitle = t('agentChat.modelPicker.noFreeModels');
+    emptyDescription = t('agentChat.modelPicker.noFreeModelsDescription');
+  }
+
   return (
     <PickerSheet
       title={t('agentChat.modelPicker.title')}
       onDone={closePicker}
       scrollable={false}
       headerContent={
-        <View>
-          <View className="flex-row items-center gap-2 rounded-full bg-secondary px-3 py-2 mx-4 mb-3 mt-3">
-            <Search size={18} color={colors.mutedForeground} />
-            {/* The placeholder is a single-line Text overlay, not the input's own
-                placeholder: Android lays the native hint out at the field's width
-                with no line cap, so copy wider than a narrow field wraps onto a
-                second line. A tail-ellipsized Text truncates the copy at any width
-                instead. The shared box draws the value on one line box and centres
-                it, and both texts start at the field's left edge so the overlay
-                sits exactly where the typed text will. The input also needs the
-                physical `pl-0 pr-0`: Android's TextInput ignores the logical
-                padding `px-0` compiles to and keeps its default inset. */}
-            <View className="relative flex-1">
-              <Input
-                ref={searchInputRef}
-                accessibilityLabel={t('common.searchModels')}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="search"
-                className="flex-1 px-0 pl-0 pr-0 text-base text-foreground"
-                onChangeText={setSearch}
-              />
-              {search.length === 0 ? (
-                <View className="absolute inset-0 justify-center" pointerEvents="none">
-                  <Text
-                    accessible={false}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    className="text-base leading-[normal] font-normal px-0 text-muted-foreground"
-                  >
-                    {t('common.searchModels')}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-            {/* In-field clear, on every platform: `clearButtonMode` is iOS
-                only, so Android rendered the query with no way to reset it. */}
-            {search.length > 0 ? (
-              <Pressable
-                onPress={handleClearSearch}
-                accessibilityLabel={t('common.clearSearch')}
-                accessibilityRole="button"
-                hitSlop={12}
-                className="active:opacity-70"
-              >
-                <X size={16} color={colors.mutedForeground} />
-              </Pressable>
-            ) : null}
-          </View>
-          <View className="mx-4 mb-3 flex-row items-center gap-2">
-            <Pressable
-              onPress={() => {
-                setFreeOnly(current => !current);
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={t('models.free')}
-              accessibilityState={{ selected: freeOnly }}
-              className={cn(
-                'rounded-full border px-3 py-1 active:opacity-70',
-                freeOnly ? 'border-primary bg-primary/10' : 'border-border'
-              )}
-            >
-              <Text
-                className={cn(
-                  'text-xs font-medium',
-                  freeOnly ? 'text-primary' : 'text-muted-foreground'
-                )}
-              >
-                {t('models.free')}
-              </Text>
-            </Pressable>
-          </View>
-          {favoritesError ? (
-            <View className="mx-4 mb-3 flex-row items-center gap-1.5">
-              <AlertCircle size={14} color={colors.destructive} />
-              <Text className="text-xs text-destructive">{favoritesError}</Text>
-            </View>
-          ) : null}
-        </View>
+        <ModelPickerHeader
+          error={favoritesError}
+          freeOnly={freeOnly}
+          inputRef={searchInputRef}
+          search={search}
+          onSearch={setSearch}
+          onClear={handleClearSearch}
+          onToggleFree={() => {
+            setFreeOnly(current => !current);
+          }}
+        />
       }
     >
       {rows.length === 0 ? (
         <EmptyState
           icon={deferredSearch.trim() ? SearchX : Info}
-          title={
-            deferredSearch.trim()
-              ? t('agentChat.repoPicker.noMatches')
-              : freeOnly
-                ? t('agentChat.modelPicker.noFreeModels')
-                : t('common.noModelsAvailable')
-          }
-          description={
-            deferredSearch.trim()
-              ? t('agents.sessionList.tryDifferentSearch')
-              : freeOnly
-                ? t('agentChat.modelPicker.noFreeModelsDescription')
-                : t('agentChat.modelPicker.noModelsDescription')
-          }
+          title={emptyTitle}
+          description={emptyDescription}
           action={
             // The in-field X is one way back; the no-matches body offers the
             // same recovery the Agents search empty state does, so the only

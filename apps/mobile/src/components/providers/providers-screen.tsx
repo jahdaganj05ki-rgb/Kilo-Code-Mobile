@@ -1,4 +1,4 @@
-import { type Href, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, View } from 'react-native';
@@ -35,7 +35,7 @@ import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
 import { i18n } from '@/i18n';
 
 const POLICY_LABELS = {
-  manual: 'profile.providers.policyManual',
+  manual: 'securityAgent.remediationStatus.originManual',
   'on-error': 'profile.providers.policyOnError',
   'round-robin': 'profile.providers.policyRoundRobin',
 } as const;
@@ -76,18 +76,18 @@ export function ProvidersScreen() {
   const refreshAll = async () => {
     setPullRefreshing(true);
     const listed: string[] = [];
+    // Only providers with an account can answer; the rest are not asked.
+    const targets = CHAT_PROVIDER_IDS.filter(providerId =>
+      backends.some(
+        account =>
+          account.provider === providerId && account.enabled !== false && account.apiKey !== ''
+      )
+    );
     try {
-      for (const providerId of CHAT_PROVIDER_IDS) {
-        const usable = backends.filter(
-          account =>
-            account.provider === providerId && account.enabled !== false && account.apiKey !== ''
-        );
-        if (usable.length === 0) {
-          continue;
-        }
+      for (const providerId of targets) {
         try {
           // eslint-disable-next-line no-await-in-loop -- one provider at a time, the same order the buttons take
-          const models = await refreshProviderCatalog(providerId, usable);
+          const models = await refreshProviderCatalog(providerId, backends);
           // The count stays attached to its provider's name, so the single
           // message still says which catalogue the number describes.
           listed.push(`${chatProvider(providerId)?.name ?? providerId} (${models.length})`);
@@ -129,8 +129,11 @@ export function ProvidersScreen() {
   const openAccount = (providerId: string, accountId?: string) => {
     router.push({
       pathname: '/(app)/(tabs)/(3_profile)/provider-account',
-      params: accountId === undefined ? { provider: providerId } : { provider: providerId, account: accountId },
-    } as unknown as Href);
+      params:
+        accountId === undefined
+          ? { provider: providerId }
+          : { provider: providerId, account: accountId },
+    });
   };
 
   return (
@@ -195,13 +198,13 @@ export function ProvidersScreen() {
                         subtitle={[
                           maskedKey(account.apiKey),
                           t('profile.providers.modelCount', { count: account.models.length }),
-                          ...(isActive ? [t('profile.providers.activeBadge')] : []),
+                          ...(isActive ? [t('kiloPass.statusActive')] : []),
                         ].join(' · ')}
                         last={index === accounts.length - 1}
                         trailing={
                           <Switch
                             value={account.enabled !== false}
-                            accessibilityLabel={t('profile.providers.enabled')}
+                            accessibilityLabel={t('common.enabled')}
                             onValueChange={enabled => {
                               updateChatBackend(account.id, accountDraft(account, { enabled }));
                             }}

@@ -1,12 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { toast } from 'sonner-native';
 
 import { ScreenHeader } from '@/components/screen-header';
 import { TabScreenScrollView } from '@/components/tab-screen';
 import { Button } from '@/components/ui/button';
+import { useConfirmDialog } from '@/components/ui/dialog';
 import { FormField } from '@/components/ui/form-field';
 import { Text } from '@/components/ui/text';
 import { STATE_ACTION_CLASS } from '@/lib/a11y/tap-target';
@@ -39,14 +40,13 @@ function parseModelIds(input: string): BackendModel[] {
   const models: BackendModel[] = [];
   for (const line of input.split('\n')) {
     const id = line.trim();
-    if (id === '' || seen.has(id)) {
-      continue;
+    if (id !== '' && !seen.has(id)) {
+      seen.add(id);
+      // A provider's own catalogue makes no statement about tools or images,
+      // and guessing either sends a request the endpoint may refuse; the effort
+      // picker stays off until a model is known to accept it.
+      models.push({ id, name: id, tools: false, images: false, reasoning: false });
     }
-    seen.add(id);
-    // A provider's own catalogue makes no statement about tools or images, and
-    // guessing either sends a request the endpoint may refuse; the effort picker
-    // stays off until a model is known to accept it.
-    models.push({ id, name: id, tools: false, images: false, reasoning: false });
   }
   return models;
 }
@@ -77,6 +77,7 @@ export function ProviderAccountScreen() {
   const [baseUrl, setBaseUrl] = useState(existing?.baseUrl ?? provider?.baseUrl ?? '');
   const [models, setModels] = useState(modelsText(existing?.models ?? []));
   const [loadingModels, setLoadingModels] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   if (provider === undefined) {
     return (
@@ -115,7 +116,7 @@ export function ProviderAccountScreen() {
     // A new account needs a key; an existing one keeps the stored key.
     const key = apiKey.trim();
     if (key === '' && existing === undefined) {
-      toast.error(t('profile.providers.apiKeyRequired'));
+      toast.error(t('profile.providerKeys.apiKeyRequired'));
       return;
     }
     const draft = {
@@ -152,7 +153,7 @@ export function ProviderAccountScreen() {
   const loadModels = async () => {
     const key = apiKey.trim() === '' ? (existing?.apiKey ?? '') : apiKey.trim();
     if (key === '') {
-      toast.error(t('profile.providers.apiKeyRequired'));
+      toast.error(t('profile.providerKeys.apiKeyRequired'));
       return;
     }
     setLoadingModels(true);
@@ -177,23 +178,18 @@ export function ProviderAccountScreen() {
     if (existing === undefined) {
       return;
     }
-    Alert.alert(
-      t('profile.providers.removeTitle'),
-      t('profile.providers.removeMessage'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('profile.providers.remove'),
-          style: 'destructive',
-          onPress: () => {
-            deleteChatBackend(existing.id);
-            toast.success(t('profile.providers.removed'));
-            router.back();
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    // The in-app dialog, not Alert: Android drops a destructive button style.
+    confirm({
+      title: t('profile.providers.removeTitle'),
+      message: t('profile.providers.removeMessage'),
+      confirmLabel: t('profile.providers.remove'),
+      cancelLabel: t('common.cancel'),
+      onConfirm: () => {
+        deleteChatBackend(existing.id);
+        toast.success(t('profile.providers.removed'));
+        router.back();
+      },
+    });
   };
 
   return (
@@ -202,7 +198,7 @@ export function ProviderAccountScreen() {
         title={
           existing === undefined
             ? t('profile.providers.newAccountTitle')
-            : t('profile.providers.editAccountTitle')
+            : t('preferences.account')
         }
       />
       <TabScreenScrollView
@@ -221,10 +217,10 @@ export function ProviderAccountScreen() {
           onChangeText={setName}
         />
         <FormField
-          label={t('profile.providers.apiKey')}
+          label={t('profile.providerKeys.apiKeyLabel')}
           placeholder={
             existing === undefined
-              ? t('profile.providers.apiKeyPlaceholder')
+              ? t('profile.providerKeys.apiKeyPlaceholder')
               : t('profile.providers.apiKeyKeep')
           }
           secureTextEntry
@@ -308,6 +304,7 @@ export function ProviderAccountScreen() {
           </Button>
         )}
       </TabScreenScrollView>
+      {dialog}
     </View>
   );
 }
