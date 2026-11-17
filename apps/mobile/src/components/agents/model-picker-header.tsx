@@ -25,7 +25,7 @@ export function ModelPickerHeader({
   search,
 }: Readonly<{
   /** A favorites read that failed; the field keeps the row it reports into. */
-  error?: string;
+  error?: string | null;
   freeOnly: boolean;
   inputRef: RefObject<TextInput | null>;
   onClear: () => void;
@@ -104,7 +104,7 @@ export function ModelPickerHeader({
           </Text>
         </Pressable>
       </View>
-      {error === undefined ? null : (
+      {error ? (
         <View className="mx-4 mb-3 flex-row items-center gap-1.5">
           <AlertCircle size={14} color={colors.destructive} />
           <Text className="text-xs text-destructive">{error}</Text>
