@@ -109,7 +109,7 @@ export function ModelPickerHeader({
           <AlertCircle size={14} color={colors.destructive} />
           <Text className="text-xs text-destructive">{error}</Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
